@@ -97,10 +97,34 @@ function optionLabel(category, value) {
 }
 
 /* ── Go Deeper resource catalog ────────────────────────────────────────────
-   Type-led: three real, external resources per typography choice — see it
-   IN USE on a real deployed project, inspect a live font PAIRING, then go
-   GET THE FONT from the foundry. Every entry is a genuine external link
-   (Fonts In Use / Typewolf / foundry sites), opened in a new tab.          */
+   Type-led: three real, external resources per typography choice. IN USE
+   and PAIRING are curatorial — real deployed projects and live pairings in
+   a similar mood, not necessarily built on this app's exact fonts. GET THE
+   FONT is the one card kept literally accurate: it always points at the
+   actual typeface the canvas renders for that option (see fontSpecimens),
+   falling back to a fitting real-world alternative only where this app's
+   font has no clean foundry/specimen link of its own. Every entry is a
+   genuine external link, opened in a new tab.                            */
+
+/* The exact typefaces this app renders, used as the GET THE FONT card so
+   that card never contradicts what "The Move" says or what's on screen. */
+const fontSpecimens = {
+  newsreader: { id:'newsreader-production-type', kind:'GET THE FONT', title:'Newsreader — Production Type',
+    description:'An open-source serif designed specifically for long-form reading on screens, with optical sizes for text and display use.',
+    href:'https://productiontype.com/font/newsreader', external:true },
+  cormorant: { id:'cormorant-google', kind:'GET THE FONT', title:'Cormorant Garamond — Google Fonts',
+    description:'An expressive display family with a large range of stylistic cuts, useful when you want classical form with more theatrical presence.',
+    href:'https://fonts.google.com/specimen/Cormorant+Garamond', external:true },
+  instrumentSans: { id:'instrument-sans-google', kind:'GET THE FONT', title:'Instrument Sans — Google Fonts',
+    description:'A warm, slightly rounded grotesk built for interfaces — the actual display face behind this app’s "Contemporary" system.',
+    href:'https://fonts.google.com/specimen/Instrument+Sans', external:true },
+  ibmPlex: { id:'ibm-plex-brand-story', kind:'SPECIMEN', title:'The Story of IBM Plex',
+    description:'A closer look at how IBM designed a type system to balance the engineered and the human.',
+    href:'https://www.ibm.com/design/impact/plex/', external:true },
+  suisse: { id:'suisse-typefaces', kind:'GET THE FONT', title:'Suisse — Swiss Typefaces',
+    description:'A large neo-grotesk superfamily with serif, mono, and condensed companions designed to work together as one system.',
+    href:'https://www.swisstypefaces.com/fonts/suisse/', external:true },
+};
 
 const typeResources = {
   editorial: [
@@ -110,9 +134,7 @@ const typeResources = {
     { id:'editorial-new-versus-hotels', kind:'PAIRING', title:'Versus Hotels',
       description:'Editorial New + Space Grotesk. A sharp example of expressive serif display type balanced by a calm geometric sans.',
       href:'https://www.typewolf.com/site-of-the-day/versus-hotels', external:true },
-    { id:'editorial-new-pangram', kind:'GET THE FONT', title:'Editorial New — Pangram Pangram',
-      description:'A precise narrow serif with optical drama, deep italics, and enough range for both editorial reading and statement headlines.',
-      href:'https://pangrampangram.com/products/editorial-new', external:true },
+    fontSpecimens.newsreader,
   ],
   contemporary: [
     { id:'graphik-typographics', kind:'IN USE', title:'Typographics 2017 Branding',
@@ -121,9 +143,7 @@ const typeResources = {
     { id:'bastien-allard', kind:'PAIRING', title:'Bastien Allard',
       description:'Editorial New + Neue Haas Unica. A good reference for contemporary restraint with just enough editorial character.',
       href:'https://www.typewolf.com/site-of-the-day/bastien-allard', external:true },
-    { id:'graphik-commercial-type', kind:'GET THE FONT', title:'Graphik — Commercial Type',
-      description:'A modern grotesk built for flexible systems: direct, neutral, and strong enough to support expressive display moments.',
-      href:'https://commercialtype.com/catalog/graphik', external:true },
+    fontSpecimens.instrumentSans,
   ],
   fashion: [
     { id:'nu-icons-magazine', kind:'IN USE', title:'Nu Icons Magazine Redesign',
@@ -132,9 +152,7 @@ const typeResources = {
     { id:'tmbr-founders-grotesk', kind:'PAIRING', title:'TMBR',
       description:'Cambon + Founders Grotesk. A confident serif-and-grotesk pairing with enough contrast for cultural or fashion-forward work.',
       href:'https://www.typewolf.com/site-of-the-day/tmbr', external:true },
-    { id:'founders-grotesk-klim', kind:'GET THE FONT', title:'Founders Grotesk — Klim',
-      description:'A contemporary family rooted in early grotesks, with condensed and mono variants that make it especially useful for fashion systems.',
-      href:'https://klim.co.nz/collections/founders-grotesk/', external:true },
+    fontSpecimens.cormorant,
   ],
   luxury: [
     { id:'simon-schuster-editorial-new', kind:'IN USE', title:'Simon & Schuster Redesign Concept',
@@ -160,27 +178,6 @@ const typeResources = {
   ],
 };
 
-/* Lightweight fallback/specimen resources for the exact typefaces this app
-   actually renders — not wired into the default rotation yet, but kept
-   here for a future contextual swap (see pickGoDeeperResources below). */
-const fontSpecimens = {
-  newsreader: { id:'newsreader-production-type', kind:'SPECIMEN', title:'Newsreader — Production Type',
-    description:'An open-source serif designed specifically for long-form reading on screens, with optical sizes for text and display use.',
-    href:'https://productiontype.com/font/newsreader', external:true },
-  cormorant: { id:'cormorant-google', kind:'SPECIMEN', title:'Cormorant Garamond — Google Fonts',
-    description:'An expressive display family with a large range of stylistic cuts, useful when you want classical form with more theatrical presence.',
-    href:'https://fonts.google.com/specimen/Cormorant+Garamond', external:true },
-  ibmPlex: { id:'ibm-plex-brand-story', kind:'SPECIMEN', title:'The Story of IBM Plex',
-    description:'A closer look at how IBM designed a type system to balance the engineered and the human.',
-    href:'https://www.ibm.com/design/impact/plex/', external:true },
-  suisse: { id:'suisse-typefaces', kind:'GET THE FONT', title:'Suisse — Swiss Typefaces',
-    description:'A large neo-grotesk superfamily with serif, mono, and condensed companions designed to work together as one system.',
-    href:'https://www.swisstypefaces.com/fonts/suisse/', external:true },
-};
-
-/* Type is the primary source; color/layout can later swap the third card
-   for a especially-relevant contextual pick (fontSpecimens exists for
-   exactly that). For now every state gets its three type-led resources. */
 function pickGoDeeperResources(design) {
   return (typeResources[design.typography] || []).slice(0, 3);
 }
