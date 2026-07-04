@@ -128,6 +128,7 @@ button { font: inherit; }
 .guide-cta-text strong { font-weight: 600; }
 
 /* ── Current Mix / Current Direction chips ───────────────────────────── */
+#current-mix { margin-bottom: 26px; } /* matches .control-section's gap so every section in Design Controls is evenly spaced */
 .mix-label {
   font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
   color: #B8B5B0; font-weight: 600; margin-bottom: 10px;
@@ -251,21 +252,15 @@ button { font: inherit; }
   text-decoration: none; color: inherit; font: inherit;
 }
 .go-deeper-card:hover { border-color: rgba(0,0,0,0.2); }
-.go-deeper-thumb {
-  width: 38px; height: 38px; border-radius: 7px; flex-shrink: 0; background: #1A1A1A;
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; letter-spacing: .02em;
-}
-/* Muted, distinct tint per resource job — a small step toward feeling
-   collectible rather than four identical black placeholders. Real
-   screenshots/branded covers are the natural next step here. */
-.go-deeper-card.type-read .go-deeper-thumb { background: #1A1A1A; }
-.go-deeper-card.type-browse .go-deeper-thumb { background: #8A6D4B; }
-.go-deeper-card.type-study .go-deeper-thumb { background: #3F4A46; }
-.go-deeper-card.type-reference .go-deeper-thumb { background: #4A4238; }
 .go-deeper-body { flex: 1; min-width: 0; }
 .go-deeper-body .kicker { font-size: 11.5px; font-weight: 600; color: #1A1A1A; margin-bottom: 2px; line-height: 1.35; }
-.go-deeper-body .kicker .type-tag { color: #9C8B70; letter-spacing: .04em; }
+.go-deeper-body .kicker .type-tag { letter-spacing: .04em; }
+/* Muted, distinct tint per resource kind — the small remaining hint of
+   variety now that the thumbnail squares are gone. */
+.go-deeper-card.type-in-use .type-tag { color: #8A8780; }
+.go-deeper-card.type-pairing .type-tag { color: #8A6D4B; }
+.go-deeper-card.type-get-the-font .type-tag { color: #3F4A46; }
+.go-deeper-card.type-specimen .type-tag { color: #4A4238; }
 .go-deeper-body .sub { font-size: 11px; color: #999; line-height: 1.35; }
 .go-deeper-arrow { flex-shrink: 0; color: #BBB; font-size: 13px; }
 

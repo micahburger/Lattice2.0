@@ -97,83 +97,92 @@ function optionLabel(category, value) {
 }
 
 /* ── Go Deeper resource catalog ────────────────────────────────────────────
-   Four distinct jobs: BROWSE (galleries/showcases), STUDY (design systems /
-   documentation), READ (a specific idea tied to the selected direction), and
-   REFERENCE (archives, typography libraries, foundational material). Real,
-   currently-active external destinations are linked directly; the bespoke
-   READ essays are internal (no url) and open the in-app detail modal.       */
+   Type-led: three real, external resources per typography choice — see it
+   IN USE on a real deployed project, inspect a live font PAIRING, then go
+   GET THE FONT from the foundry. Every entry is a genuine external link
+   (Fonts In Use / Typewolf / foundry sites), opened in a new tab.          */
 
-const RESOURCES = {
-  // READ — specific, bespoke, tied to individual options.
-  'literary-serif':    { type:'READ', title:'Newsreader and the literary serif revival',    sub:'Why optical-size serifs read as considered, not decorative.',        tags:['editorial','print','serif','books'] },
-  'bodoni-drama':      { type:'READ', title:'Bodoni and typographic drama',                 sub:'Extreme contrast as a signal of quality, not decoration.',           tags:['luxury','drama','print','jewelry'] },
-  'museum-paper':      { type:'READ', title:'Museum paper and reading comfort',             sub:'Why warm ivory grounds slow readers down in a good way.',            tags:['paper','print','warm','books'] },
-  'material-color':    { type:'READ', title:'Color as material reference',                  sub:'Why clay and forest tones feel touchable on screen.',               tags:['craft','ceramic','warm','material','nature'] },
-  'generous-space':    { type:'READ', title:'Quiet luxury and generous space',              sub:'Why the emptiest layouts often feel the most expensive.',            tags:['space','quiet','luxury'] },
-  'density-authority':  { type:'READ', title:'British newspaper density as editorial value', sub:'How tight columns signal there’s a lot worth reading.',              tags:['dense','print','archive'] },
-  'editorial-trust':   { type:'READ', title:'Editorial design as a trust contract',          sub:'Every design choice should carry the reader forward.',               tags:['editorial','print','books','quote'] },
-  'muji-restraint':    { type:'READ', title:'Muji and product restraint',                   sub:'Absolute clarity so the object can speak for itself.',               tags:['product','object','ceramic','packaging'] },
-  'centered-stillness': { type:'READ', title:'Kenya Hara and centered stillness',            sub:'Why restraint is a decision, not an absence of one.',                tags:['minimal','centered','stillness'] },
-  'brodovitch':        { type:'READ', title:'Alexey Brodovitch and magazine pacing',        sub:'How image crop, scale, and asymmetry create momentum.',              tags:['editorial-grid','image-first','asymmetry','full-bleed','photography'] },
-
-  // BROWSE — visual inspiration and real-world examples.
-  'mobbin-sites':  { type:'BROWSE', title:'Mobbin · Latest Sites',       sub:'Real product and website patterns worth studying.',              url:'https://mobbin.com/discover/sites/latest', tags:['layout','product','contemporary','ui'] },
-  'typewolf':      { type:'BROWSE', title:'Typewolf · Typography Resources', sub:'Pairings, type trends, and strong web typography.',          url:'https://www.typewolf.com/resources',       tags:['type','fashion','luxury','contemporary'] },
-  'mindsparkle':   { type:'BROWSE', title:'Mindsparkle · Design Projects', sub:'Brand, web, packaging, and visual identity case studies.',      url:'https://mindsparklemag.com/',              tags:['brand','editorial','color','creative'] },
-  'siteinspire':   { type:'BROWSE', title:'Siteinspire',                sub:'Curated creative websites organized by style and type.',         url:'https://www.siteinspire.com/',             tags:['layout','brand','portfolio','editorial'] },
-  'awwwards':      { type:'BROWSE', title:'Awwwards · Interaction Design', sub:'High-craft sites with ambitious visual and interaction ideas.', url:'https://www.awwwards.com/websites/interaction-design/', tags:['interaction','brand','experimental','feature'] },
-
-  // STUDY — systems, frameworks, and foundational references.
-  'carbon':    { type:'STUDY', title:'IBM Carbon Design System',              sub:'A rigorous system for typography, components, and product consistency.', url:'https://carbondesignsystem.com/',    tags:['system','grid','contemporary','mono'] },
-  'spectrum':  { type:'STUDY', title:'Adobe Spectrum',                        sub:'How a large creative platform makes a coherent visual language.',        url:'https://spectrum.adobe.com/',        tags:['system','creative','color','product'] },
-  'material':  { type:'STUDY', title:'Material Design 3',                    sub:'A modern system for adaptable interaction, color, and components.',      url:'https://m3.material.io/',            tags:['system','color','product','contemporary'] },
-  'apple-hig': { type:'STUDY', title:'Apple Human Interface Guidelines',      sub:'Clarity, hierarchy, and platform-level interaction principles.',         url:'https://developer.apple.com/design/human-interface-guidelines', tags:['system','hierarchy','minimal','product'] },
-  'atlassian': { type:'STUDY', title:'Atlassian Design System',              sub:'A useful reference for scalable systems and content structure.',         url:'https://atlassian.design/',          tags:['system','content','product','brand'] },
-
-  // REFERENCE — archives and foundational libraries.
-  'fonts-in-use': { type:'REFERENCE', title:'Fonts In Use', sub:'Real-world typography indexed by typeface and format.', url:'https://fontsinuse.com/', tags:['type','editorial','print','fashion'] },
+const typeResources = {
+  editorial: [
+    { id:'editorial-new-4n', kind:'IN USE', title:'4N Magazine and Manifesto',
+      description:'Editorial New carries both titles and body copy in a publication that feels art-school, cultural, and document-led.',
+      href:'https://fontsinuse.com/uses/68947/4n-magazine-and-manifesto', external:true },
+    { id:'editorial-new-versus-hotels', kind:'PAIRING', title:'Versus Hotels',
+      description:'Editorial New + Space Grotesk. A sharp example of expressive serif display type balanced by a calm geometric sans.',
+      href:'https://www.typewolf.com/site-of-the-day/versus-hotels', external:true },
+    { id:'editorial-new-pangram', kind:'GET THE FONT', title:'Editorial New — Pangram Pangram',
+      description:'A precise narrow serif with optical drama, deep italics, and enough range for both editorial reading and statement headlines.',
+      href:'https://pangrampangram.com/products/editorial-new', external:true },
+  ],
+  contemporary: [
+    { id:'graphik-typographics', kind:'IN USE', title:'Typographics 2017 Branding',
+      description:'Graphik acts as the stabilizing voice in a bolder identity system, showing how a neutral sans can keep experimental work grounded.',
+      href:'https://fontsinuse.com/uses/25799/typographics-2017-branding', external:true },
+    { id:'bastien-allard', kind:'PAIRING', title:'Bastien Allard',
+      description:'Editorial New + Neue Haas Unica. A good reference for contemporary restraint with just enough editorial character.',
+      href:'https://www.typewolf.com/site-of-the-day/bastien-allard', external:true },
+    { id:'graphik-commercial-type', kind:'GET THE FONT', title:'Graphik — Commercial Type',
+      description:'A modern grotesk built for flexible systems: direct, neutral, and strong enough to support expressive display moments.',
+      href:'https://commercialtype.com/catalog/graphik', external:true },
+  ],
+  fashion: [
+    { id:'nu-icons-magazine', kind:'IN USE', title:'Nu Icons Magazine Redesign',
+      description:'Fashion and beauty editorial that pairs a more expressive display voice with Neue Haas Grotesk for text and Basel Grotesk Mono for captions.',
+      href:'https://fontsinuse.com/uses/45844/nu-icons-magazine-redesign', external:true },
+    { id:'tmbr-founders-grotesk', kind:'PAIRING', title:'TMBR',
+      description:'Cambon + Founders Grotesk. A confident serif-and-grotesk pairing with enough contrast for cultural or fashion-forward work.',
+      href:'https://www.typewolf.com/site-of-the-day/tmbr', external:true },
+    { id:'founders-grotesk-klim', kind:'GET THE FONT', title:'Founders Grotesk — Klim',
+      description:'A contemporary family rooted in early grotesks, with condensed and mono variants that make it especially useful for fashion systems.',
+      href:'https://klim.co.nz/collections/founders-grotesk/', external:true },
+  ],
+  luxury: [
+    { id:'simon-schuster-editorial-new', kind:'IN USE', title:'Simon & Schuster Redesign Concept',
+      description:'Editorial New shifts from subtle subheads to dramatic display moments, showing how high-contrast serif type can feel both refined and modern.',
+      href:'https://fontsinuse.com/uses/64711/simon-and-schuster-redesign-fictional', external:true },
+    { id:'bodoni-eric-hu', kind:'PAIRING', title:'Eric Hu',
+      description:'Bodoni + Neue Haas Grotesk. A classic high-contrast display face paired with a neutral sans for a sharper, more contemporary result.',
+      href:'https://www.typewolf.com/bodoni', external:true },
+    { id:'bodoni-moda-google', kind:'GET THE FONT', title:'Bodoni Moda — Google Fonts',
+      description:'A digital-first Bodoni family with high contrast, italics, and a full range of weights for more dramatic editorial composition.',
+      href:'https://fonts.google.com/specimen/Bodoni+Moda', external:true },
+  ],
+  mono: [
+    { id:'raye-space-mono', kind:'IN USE', title:'Raye the Store',
+      description:'Space Mono helps create a consistent, contemporary system across product editions without losing warmth or personality.',
+      href:'https://fontsinuse.com/uses/62010/raye-the-store-10', external:true },
+    { id:'paradise-studio-space-mono', kind:'PAIRING', title:'Paradise Studio',
+      description:'Lausanne + Space Mono. A useful reference for mixing polished contemporary sans typography with technical utility details.',
+      href:'https://www.typewolf.com/site-of-the-day/paradise-studio', external:true },
+    { id:'ibm-plex-official', kind:'GET THE FONT', title:'IBM Plex',
+      description:'IBM’s open-source type system, built across Sans, Serif, and Mono styles for interfaces, information, and expressive systems.',
+      href:'https://www.ibm.com/plex/', external:true },
+  ],
 };
 
-const RESOURCE_TYPE_PENALTY = 0.4; // multiplicative — softly discourages repeating a job type
+/* Lightweight fallback/specimen resources for the exact typefaces this app
+   actually renders — not wired into the default rotation yet, but kept
+   here for a future contextual swap (see pickGoDeeperResources below). */
+const fontSpecimens = {
+  newsreader: { id:'newsreader-production-type', kind:'SPECIMEN', title:'Newsreader — Production Type',
+    description:'An open-source serif designed specifically for long-form reading on screens, with optical sizes for text and display use.',
+    href:'https://productiontype.com/font/newsreader', external:true },
+  cormorant: { id:'cormorant-google', kind:'SPECIMEN', title:'Cormorant Garamond — Google Fonts',
+    description:'An expressive display family with a large range of stylistic cuts, useful when you want classical form with more theatrical presence.',
+    href:'https://fonts.google.com/specimen/Cormorant+Garamond', external:true },
+  ibmPlex: { id:'ibm-plex-brand-story', kind:'SPECIMEN', title:'The Story of IBM Plex',
+    description:'A closer look at how IBM designed a type system to balance the engineered and the human.',
+    href:'https://www.ibm.com/design/impact/plex/', external:true },
+  suisse: { id:'suisse-typefaces', kind:'GET THE FONT', title:'Suisse — Swiss Typefaces',
+    description:'A large neo-grotesk superfamily with serif, mono, and condensed companions designed to work together as one system.',
+    href:'https://www.swisstypefaces.com/fonts/suisse/', external:true },
+};
 
-function directionTagSet(design) {
-  const tags = new Set(['color', 'layout', 'type']);
-  ['typography', 'colorStory', 'layout', 'spacing', 'contentFocus'].forEach(cat => {
-    tags.add(design[cat]);
-    const meta = OPTION_META[`${cat}:${design[cat]}`];
-    if (meta) meta.tags.forEach(t => tags.add(t));
-  });
-  return tags;
-}
-
-function pickGoDeeperResources(design, lastChangedCategory, limit) {
-  limit = limit || 3;
-  const tagSet = directionTagSet(design);
-  const lastChangedValue = lastChangedCategory ? design[lastChangedCategory] : null;
-
-  const scored = Object.keys(RESOURCES).map((id, idx) => {
-    const r = { id, ...RESOURCES[id] };
-    let score = r.tags.filter(t => tagSet.has(t)).length;
-    if (lastChangedValue && r.tags.includes(lastChangedValue)) score += 1;
-    return { r, idx, score };
-  });
-
-  const picked = [];
-  const usedTypes = new Set();
-  for (let i = 0; i < limit && i < scored.length; i++) {
-    let best = null;
-    scored.forEach(entry => {
-      if (picked.includes(entry.r)) return;
-      const effScore = usedTypes.has(entry.r.type) ? entry.score * RESOURCE_TYPE_PENALTY : entry.score;
-      if (!best || effScore > best.effScore || (effScore === best.effScore && entry.idx < best.idx)) {
-        best = { r: entry.r, idx: entry.idx, effScore };
-      }
-    });
-    if (!best) break;
-    picked.push(best.r);
-    usedTypes.add(best.r.type);
-  }
-  return picked;
+/* Type is the primary source; color/layout can later swap the third card
+   for a especially-relevant contextual pick (fontSpecimens exists for
+   exactly that). For now every state gets its three type-led resources. */
+function pickGoDeeperResources(design) {
+  return (typeResources[design.typography] || []).slice(0, 3);
 }
 
 /* ── Named directions — curated combinations worth a real title ──────────── */

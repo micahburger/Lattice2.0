@@ -562,25 +562,22 @@ function theMoveHtml(design) {
   </div>`;
 }
 
-const RESOURCE_MONOGRAM = { READ: 'RD', BROWSE: 'BR', STUDY: 'ST', REFERENCE: 'RF' };
+const RESOURCE_KIND_CLASS = { 'IN USE': 'in-use', PAIRING: 'pairing', 'GET THE FONT': 'get-the-font', SPECIMEN: 'specimen' };
 
 function goDeeperCardHtml(r) {
-  // Catalog entries with a real url open that destination directly; the
-  // bespoke READ essays (no url) open the in-app detail modal instead.
-  const tag = r.url ? 'a' : 'button';
-  const attrs = r.url ? `href="${esc(r.url)}" target="_blank" rel="noopener"` : `data-resource="${r.id}"`;
-  return `<${tag} class="go-deeper-card type-${r.type.toLowerCase()}" ${attrs}>
-    <div class="go-deeper-thumb">${RESOURCE_MONOGRAM[r.type] || '·'}</div>
+  // Every Go Deeper resource is a real, external destination now — always
+  // opens directly in a new tab, never an in-app modal.
+  return `<a class="go-deeper-card type-${RESOURCE_KIND_CLASS[r.kind] || 'specimen'}" href="${esc(r.href)}" target="_blank" rel="noopener noreferrer">
     <div class="go-deeper-body">
-      <div class="kicker"><span class="type-tag">${esc(r.type)}</span> &middot; ${esc(r.title)}</div>
-      <div class="sub">${esc(r.sub)}</div>
+      <div class="kicker"><span class="type-tag">${esc(r.kind)}</span> &middot; ${esc(r.title)}</div>
+      <div class="sub">${esc(r.description)}</div>
     </div>
     <span class="go-deeper-arrow">&#8599;</span>
-  </${tag}>`;
+  </a>`;
 }
 
-function goDeeperHtml(design, lastChangedCategory) {
-  const resources = pickGoDeeperResources(design, lastChangedCategory);
+function goDeeperHtml(design) {
+  const resources = pickGoDeeperResources(design);
   return `<div id="go-deeper-section">
     <div class="mix-label" style="margin-top:4px;">Go Deeper</div>
     <div class="go-deeper-list">
@@ -610,7 +607,7 @@ function creativeGuideTabHtml(design) {
     ${currentDirectionHtml(design)}
     <div id="guide-toast"></div>
     ${theMoveHtml(design)}
-    ${goDeeperHtml(design, state.lastChanged && state.lastChanged.category)}
+    ${goDeeperHtml(design)}
     ${inspirationHtml(design)}
   `;
 }
@@ -719,26 +716,6 @@ function openInspirationModal(id) {
   document.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc1); } });
 }
 
-function openResourceModal(id) {
-  const resource = RESOURCES[id];
-  if (!resource) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `<div class="modal-card">
-    <button class="modal-close" id="modal-close">&times;</button>
-    <div class="modal-body" style="padding-top:26px;">
-      <div class="kicker">${esc(resource.type)}</div>
-      <h3>${esc(resource.title)}</h3>
-      <p>${esc(resource.sub)}</p>
-    </div>
-  </div>`;
-  document.body.appendChild(overlay);
-  const close = () => overlay.remove();
-  overlay.querySelector('#modal-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  document.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc1); } });
-}
-
 const SECTION_HTML_BY_KEY = {
   typography:   typographySelectorHtml,
   colorStory:   atmosphereSelectorHtml,
@@ -775,12 +752,6 @@ function attachJumpHandlers(container) {
   });
 }
 
-function attachResourceHandlers(container) {
-  container.querySelectorAll('[data-resource]').forEach(btn => {
-    btn.addEventListener('click', () => openResourceModal(btn.getAttribute('data-resource')));
-  });
-}
-
 function attachInspirationHandlers(container) {
   container.querySelectorAll('[data-insp]').forEach(btn => {
     btn.addEventListener('click', () => openInspirationModal(btn.getAttribute('data-insp')));
@@ -802,7 +773,7 @@ function patchGuideBlock(id, htmlFn, wireFn) {
 function updateGuideInPlace() {
   patchGuideBlock('current-direction', () => currentDirectionHtml(state.design), attachJumpHandlers);
   patchGuideBlock('the-move', () => theMoveHtml(state.design));
-  patchGuideBlock('go-deeper-section', () => goDeeperHtml(state.design, state.lastChanged && state.lastChanged.category), attachResourceHandlers);
+  patchGuideBlock('go-deeper-section', () => goDeeperHtml(state.design));
   patchGuideBlock('inspiration-section', () => inspirationHtml(state.design), attachInspirationHandlers);
 }
 
@@ -895,7 +866,6 @@ function wireDrawerEvents() {
 
   attachDesignKeyHandlers(document);
   attachJumpHandlers(document);
-  attachResourceHandlers(document);
   attachInspirationHandlers(document);
   wireCtaButton();
 }
