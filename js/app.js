@@ -39,6 +39,7 @@ function buildCtx(design) {
     colors, typo, space, content,
     layout: design.layout,
     contentFocus: design.contentFocus,
+    colorStory: design.colorStory,
     cardPhotos: CARD_PHOTOS[design.contentFocus],
     heroPhoto: HERO_PHOTOS[design.contentFocus],
     extraPhotos: GRID_EXTRA[design.contentFocus],
@@ -300,7 +301,7 @@ function collectionBandHtml(ctx, bandSlots) {
 }
 
 function gridLayoutHtml(ctx) {
-  const layout = getCollectionLayout(ctx.contentFocus, ctx.contentFocus);
+  const layout = getCollectionLayout(ctx.contentFocus, ctx.colorStory, ctx.contentFocus);
   return `<div>
     ${collectionIntroHtml(ctx)}
     ${collectionTopGridHtml(ctx, layout.top)}

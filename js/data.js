@@ -5,26 +5,40 @@
    here is prebuilt, static content.
    ============================================================================ */
 
+/* Paths encode mood on purpose — assets/img/<light|dark|colorful>/... — so
+   the collection engine (collection-data.js) can derive an asset's mood
+   straight from its folder instead of hand-tagging every entry. Drop a new
+   photo into the matching folder and it's already correctly moody.        */
 const IMG = {
-  sunset: 'assets/img/sunset.jpg',
-  cucTee: 'assets/img/cuc-tee.jpg',
-  dinoTee: 'assets/img/dino-tee.jpg',
-  cap: 'assets/img/cap.jpg',
-  sneakers: 'assets/img/sneakers.jpg',
-  tintin: 'assets/img/tintin.jpg',
-  birch: 'assets/img/birch.jpg',
-  car: 'assets/img/car.jpg',
-  golf: 'assets/img/golf.jpg',
-  featureVase: 'assets/img/feature-vase.jpg',
-  featureStudio: 'assets/img/feature-studio.jpg',
-  featureMaterials: 'assets/img/feature-materials.jpg',
-  featureInterior: 'assets/img/feature-interior.jpg',
-  bookLandscapes: 'assets/img/12.jpg',
-  bookDutch: 'assets/img/13.jpeg',
-  journalSpread: 'assets/img/14.jpg',
-  lamp: 'assets/img/lamp1.jpg',
-  shelf: 'assets/img/shelf.jpg',
-  storage: 'assets/img/storage.jpg',
+  sunset: 'assets/img/colorful/sunset.jpg',
+  cucTee: 'assets/img/light/cuc-tee.jpg',
+  dinoTee: 'assets/img/light/dino-tee.jpg',
+  cap: 'assets/img/colorful/cap.jpg',
+  sneakers: 'assets/img/light/sneakers.jpg',
+  tintin: 'assets/img/dark/tintin.jpg',
+  birch: 'assets/img/light/birch.jpg',
+  car: 'assets/img/colorful/car.jpg',
+  golf: 'assets/img/light/golf.jpg',
+  featureVase: 'assets/img/light/feature-vase.jpg',
+  featureStudio: 'assets/img/light/feature-studio.jpg',
+  featureMaterials: 'assets/img/light/feature-materials.jpg',
+  featureInterior: 'assets/img/light/feature-interior.jpg',
+  bookLandscapes: 'assets/img/colorful/12.jpg',
+  bookDutch: 'assets/img/light/13.jpeg',
+  journalSpread: 'assets/img/colorful/14.jpg',
+  lamp: 'assets/img/colorful/lamp1.jpg',
+  shelf: 'assets/img/light/shelf.jpg',
+  storage: 'assets/img/light/storage.jpg',
+  clock1: 'assets/img/light/clock1.jpg',
+  clock2: 'assets/img/colorful/clock2.jpg',
+  darkGradient: 'assets/img/dark/gradient-study.jpg',
+  darkSpheres: 'assets/img/dark/sphere-study.jpg',
+  darkAppUI: 'assets/img/dark/app-ui.jpg',
+  mediaConsole: 'assets/img/colorful/media-console.jpg',
+  studioMonitor: 'assets/img/dark/studio-monitor.jpg',
+  darkAlarmClock: 'assets/img/dark/alarm-clock.jpg',
+  quadroDesignBook: 'assets/img/light/quadro-book.jpg',
+  architectureBook: 'assets/img/dark/architecture-book.jpg',
 };
 
 /* ── Colors (Atmosphere) ─────────────────────────────────────────────────── */

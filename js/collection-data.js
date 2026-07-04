@@ -41,7 +41,11 @@ function seededShuffle(arr, seed) {
    at runtime — the honest buildless substitute for reading image
    dimensions off disk. `contexts` says which content archetypes an asset
    is relevant to; `priority` is a soft preference for the more prominent
-   (feature/medium) slots.                                                 */
+   (feature/medium) slots. Mood is NOT hand-tagged here — it's read straight
+   off the asset's folder (assets/img/light|dark|colorful/…) by moodFromSrc
+   below, so organizing a photo into the right folder is the whole tagging
+   step. Drop a new image into assets/img/dark/, add one line here pointing
+   at it, and it's already in rotation for the moodier color stories.      */
 const COLLECTION_ASSETS = [
   { id:'cap',        src: IMG.cap,             alt:'Green cap on a plain background',            aspect:'portrait',  priority:3, contexts:['product'],          category:'Objects',   title:'Retired Cap',            price:'$45'  },
   { id:'cuc-tee',    src: IMG.cucTee,          alt:'T-shirt with a cucumber print',               aspect:'square',    priority:3, contexts:['product'],          category:'Wear',       title:'Cucumber Tee',           price:'$58'  },
@@ -54,6 +58,13 @@ const COLLECTION_ASSETS = [
   { id:'lamp',       src: IMG.lamp,            alt:'Mid-century brass table lamp, lit',            aspect:'portrait',  priority:5, contexts:['product'],          category:'Lighting',  title:'Brass Table Lamp',       price:'$340' },
   { id:'shelf',      src: IMG.shelf,           alt:'Detail of modular wood shelving',              aspect:'portrait',  priority:4, contexts:['product','brand'],  category:'Furniture', title:'Modular Shelving',       price:'$780' },
   { id:'storage',    src: IMG.storage,         alt:'Stacked modular wood storage cubes',           aspect:'square',    priority:3, contexts:['product'],          category:'Storage',   title:'Storage System',         price:'$960' },
+  { id:'clock-1',    src: IMG.clock1,          alt:'Navy blue wall clock in a bright room',        aspect:'square',    priority:2, contexts:['product'],          category:'Objects',   title:'Wall Clock',             price:'$68'  },
+  { id:'clock-2',    src: IMG.clock2,          alt:'Green triangular wall clock in warm light',    aspect:'square',    priority:2, contexts:['product'],          category:'Objects',   title:'Angle Clock',            price:'$74'  },
+  { id:'media-console', src: IMG.mediaConsole, alt:'Red media console with speakers and vinyl',    aspect:'portrait',  priority:3, contexts:['product','brand'],  category:'Furniture', title:'Media Console',          price:'$1,240' },
+  { id:'studio-monitor', src: IMG.studioMonitor, alt:'Black studio speaker on a plain background', aspect:'portrait',  priority:4, contexts:['product'],          category:'Audio',     title:'Studio Monitor',         price:'$420' },
+  { id:'alarm-clock', src: IMG.darkAlarmClock, alt:'Black Braun alarm clock',                      aspect:'square',    priority:4, contexts:['product'],          category:'Objects',   title:'Braun Alarm Clock',      price:'$88'  },
+  { id:'quadro-book', src: IMG.quadroDesignBook, alt:'QuadroDesign monograph cover',                aspect:'portrait',  priority:3, contexts:['product','brand'],  category:'Books',     title:'QuadroDesign',           price:'$54'  },
+  { id:'architecture-book', src: IMG.architectureBook, alt:'Architecture of Context and Time book, black and white', aspect:'portrait', priority:3, contexts:['product','brand'], category:'Books', title:'Architecture of Context and Time', price:'$62' },
 
   { id:'sunset',     src: IMG.sunset,          alt:'Painting of a golf course at sunset',          aspect:'landscape', priority:4, contexts:['editorial','portfolio'], category:'Painting', title:'Sunset Field No. 3', year:'2023', dimensions:'80 × 80 cm' },
   { id:'birch',      src: IMG.birch,           alt:'Painting of a birch tree with clouds',         aspect:'square',    priority:5, contexts:['editorial','portfolio'], category:'Painting', title:'Birch with Cloud',   year:'2024', dimensions:'90 × 70 cm' },
@@ -63,7 +74,41 @@ const COLLECTION_ASSETS = [
   { id:'studio',     src: IMG.featureStudio,   alt:'Wide shot of a design studio',                 aspect:'landscape', priority:3, contexts:['brand','editorial'],     category:'Studio',   title:'The Studio' },
   { id:'interior',   src: IMG.featureInterior, alt:'Sunlit interior corner',                       aspect:'landscape', priority:3, contexts:['editorial','brand'],     category:'Interior', title:'Studio Interior' },
   { id:'journal',    src: IMG.journalSpread,   alt:'Open magazine spread with a forest photograph',aspect:'landscape', priority:4, contexts:['editorial','brand'],     category:'Journal',  title:'Field Journal Vol. 2' },
+  { id:'gradient-study', src: IMG.darkGradient, alt:'Abstract glowing color gradient on black',    aspect:'portrait',  priority:4, contexts:['editorial','portfolio','brand'], category:'Print', title:'Spectrum Study' },
+  { id:'sphere-study', src: IMG.darkSpheres,   alt:'Rows of abstract gradient spheres on black',   aspect:'portrait',  priority:4, contexts:['editorial','portfolio','brand'], category:'Print', title:'Sphere Study' },
+  { id:'app-ui',     src: IMG.darkAppUI,       alt:'Dark mode phone app showing device usage',     aspect:'portrait',  priority:3, contexts:['brand','product'],       category:'Interface', title:'Device Usage App' },
 ];
+
+/* ── Mood-aware color story matching ──────────────────────────────────────
+   Mood is derived from the asset's own folder — no per-asset field to keep
+   in sync. Each color story has one preferred mood folder; assets in that
+   folder get a scoring boost, assets in a clashing folder take a small
+   penalty, and everything else (any asset not sorted into a mood folder)
+   is unaffected either way. */
+function moodFromSrc(src) {
+  if (src.includes('/dark/')) return 'dark';
+  if (src.includes('/light/')) return 'light';
+  if (src.includes('/colorful/')) return 'colorful';
+  return null;
+}
+
+const COLORSTORY_MOOD = {
+  museum:   'light',
+  graphite: 'dark',
+  signal:   'colorful',
+  forest:   'dark',
+  electric: 'colorful',
+  midnight: 'dark',
+  clay:     'light',
+};
+
+function moodBonus(asset, colorStory) {
+  const mood = moodFromSrc(asset.src);
+  const preferred = COLORSTORY_MOOD[colorStory];
+  if (!mood || !preferred) return 0;
+  if (mood === preferred) return 2;
+  return -1;
+}
 
 /* ── Composition slots ────────────────────────────────────────────────────
    A 12-column grid, expressed as CSS grid-column / grid-row spans. `top` is
@@ -107,8 +152,10 @@ function collectionAssetCount(contentFocus) {
    is smaller than the number of slots does a literal repeat happen, and
    even then it cycles through the pool instead of collapsing onto one item.
    Also softly avoids repeating the immediately-previous slot's category so
-   similar items don't land directly beside each other. */
-function pickAsset(contextPool, fullPool, role, used, avoidCategory, repeatCursor) {
+   similar items don't land directly beside each other, and — when a dark
+   color story is active — favors mood:'dark' assets over mood:'light' ones
+   via moodBonus. */
+function pickAsset(contextPool, fullPool, role, used, avoidCategory, repeatCursor, colorStory) {
   const wanted = WANTED_ASPECT[role] || 'square';
   const rank = ({
     landscape: ['landscape', 'square', 'portrait'],
@@ -116,12 +163,14 @@ function pickAsset(contextPool, fullPool, role, used, avoidCategory, repeatCurso
     square:    ['square', 'landscape', 'portrait'],
   })[wanted];
 
+  const rankScore = a => (a.priority || 1) + moodBonus(a, colorStory);
+
   const search = (pool, allowSameCategory) => {
     for (const aspect of rank) {
       const candidates = pool.filter(a =>
         a.aspect === aspect && !used.has(a.id) && (allowSameCategory || a.category !== avoidCategory)
       );
-      if (candidates.length) return candidates.sort((a, b) => (b.priority || 1) - (a.priority || 1))[0];
+      if (candidates.length) return candidates.sort((a, b) => rankScore(b) - rankScore(a))[0];
     }
     return null;
   };
@@ -136,12 +185,14 @@ function pickAsset(contextPool, fullPool, role, used, avoidCategory, repeatCurso
   return fullPool[repeatCursor.n++ % fullPool.length];
 }
 
-/* getCollectionLayout(contentFocus, seed)
+/* getCollectionLayout(contentFocus, colorStory, seed)
    Returns { top: [{...slot, asset}], band: [{...slot, asset}] } — a stable,
-   deterministic assignment. Same contentFocus + seed always produces the
-   same layout; pass a different seed (e.g. a shuffle timestamp) to rotate
-   which assets land in which slots. */
-function getCollectionLayout(contentFocus, seed) {
+   deterministic assignment. Same contentFocus + colorStory + seed always
+   produces the same layout; pass a different seed (e.g. a shuffle
+   timestamp) to rotate which assets land in which slots. colorStory only
+   nudges selection toward moodier assets when it's Graphite Night or
+   Midnight — it doesn't change which content pool is used.               */
+function getCollectionLayout(contentFocus, colorStory, seed) {
   seed = seed || `${contentFocus}-default`;
   const contextPool = seededShuffle(assetsForContext(contentFocus), seed);
   const fullPool = seededShuffle(COLLECTION_ASSETS, `${seed}-all`);
@@ -150,14 +201,14 @@ function getCollectionLayout(contentFocus, seed) {
   let prevCategory = null;
 
   const top = COLLECTION_SLOTS.top.map(slot => {
-    const asset = pickAsset(contextPool, fullPool, slot.role, used, prevCategory, repeatCursor);
+    const asset = pickAsset(contextPool, fullPool, slot.role, used, prevCategory, repeatCursor, colorStory);
     if (asset) { used.add(asset.id); prevCategory = asset.category; }
     return Object.assign({}, slot, { asset });
   });
 
   const band = COLLECTION_SLOTS.band.map(slot => {
     if (slot.role !== 'wide' && slot.role !== 'detail') return Object.assign({}, slot, { asset: null });
-    const asset = pickAsset(contextPool, fullPool, slot.role, used, prevCategory, repeatCursor);
+    const asset = pickAsset(contextPool, fullPool, slot.role, used, prevCategory, repeatCursor, colorStory);
     if (asset) { used.add(asset.id); prevCategory = asset.category; }
     return Object.assign({}, slot, { asset });
   });
