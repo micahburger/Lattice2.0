@@ -3,7 +3,8 @@
    Ported from the Figma Make React source (App.tsx / CanvasPreview.tsx /
    DesignControls.tsx / ArtDirectorNotes.tsx) and restyled per the redesigned
    sidebar (collapsed pill, Design Controls / Creative Guide tabs, Current Mix
-   chips, Inspiration grid + modal).
+   chips, Inspiration grid + modal). Creative Guide content is driven by the
+   matching engine in guide-data.js.
    ============================================================================ */
 
 const state = {
@@ -14,12 +15,15 @@ const state = {
     spacing:      'generous',
     contentFocus: 'editorial',
   },
-  lastChanged: null,
   drawerOpen: false,
   activeTab: 'controls', // 'controls' | 'guide'
+  lastChanged: null,         // { category, value, label } — most recent control change
+  guideUnseen: false,        // drives the Creative Guide tab dot + Design Controls CTA
+  guideLastSeenDesign: null, // snapshot of design when Creative Guide was last opened
 };
 
 function px(n) { return `${n}px`; }
+function clampNum(n, min, max) { return Math.min(Math.max(n, min), max); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ============================================================================
@@ -205,44 +209,102 @@ function minimalLayoutHtml(ctx) {
   </div>`;
 }
 
+/* ── Grid layout → editorial collection composition ───────────────────────
+   Calm, gallery-like: one dominant anchor, a modular cluster beside it, and
+   a quiet band of studio/wide/detail/CTA content underneath. Images are the
+   content — no card borders, no dark metadata bars, no grout-line grid.
+   Sourced from the collection asset manifest (collection-data.js), which is
+   how new photos dropped into assets/img rotate in automatically.         */
+
+function collectionIntroHtml(ctx) {
+  const { colors, typo, space, content, contentFocus } = ctx;
+  const pH = px(space.sH), sV = px(space.sV);
+  const count = collectionAssetCount(contentFocus);
+  const statLabel = COLLECTION_STAT_LABEL[contentFocus] || 'Pieces';
+  return `<div style="padding:${sV} ${pH} ${px(space.elem)};max-width:600px;">
+    <div style="margin-bottom:${px(space.micro)};">${labelHtml(typo, colors, content.issue)}</div>
+    <h1 style="font-family:${typo.heading};font-size:${typo.dSize};line-height:${typo.dHeight};letter-spacing:${typo.dTracking};font-weight:${typo.dWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${px(space.micro*1.6)};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
+    <p style="font-family:${typo.ui};font-size:14px;line-height:1.62;color:${colors.soft};margin:0 0 ${px(space.gap)};max-width:440px;">${esc(content.subtitle)}</p>
+    <div style="display:flex;align-items:center;gap:${px(space.gap)};flex-wrap:wrap;">
+      <span class="lc-arrow" style="display:inline-flex;align-items:center;gap:8px;font-family:${typo.ui};font-size:12px;font-weight:600;letter-spacing:0.02em;color:${colors.accentFg};background:${colors.accent};padding:11px 20px;cursor:pointer;">Explore the Collection &rarr;</span>
+      <span style="font-family:${typo.ui};font-size:11px;color:${colors.muted};"><strong style="color:${colors.text};font-weight:600;">${count}</strong> ${esc(statLabel)}</span>
+    </div>
+  </div>`;
+}
+
+function collectionImageCellHtml(ctx, slot) {
+  const { colors, typo, space } = ctx;
+  const asset = slot.asset;
+  const gridArea = `grid-column:${slot.col};${slot.row ? `grid-row:${slot.row};` : ''}`;
+  if (!asset) return `<div class="lc-item" style="${gridArea}background:${colors.surface};border-radius:6px;"></div>`;
+
+  if (slot.role === 'feature') {
+    return `<div class="lc-item" style="${gridArea}position:relative;cursor:pointer;overflow:hidden;border-radius:6px;">
+      <img class="lc-img" src="${asset.src}" alt="${esc(asset.alt || '')}" style="width:100%;height:100%;object-fit:cover;display:block;"/>
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:${px(space.elem)} ${px(space.elem)} ${px(space.micro+8)};background:linear-gradient(to top, rgba(10,10,8,0.62), rgba(10,10,8,0) 68%);">
+        <div style="font-family:${typo.ui};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.72);margin-bottom:${px(space.micro/2)};">Featured Artwork</div>
+        <div style="font-family:${typo.heading};font-size:${typo.hSize};font-weight:${typo.hWeight};color:#fff;line-height:1.15;margin-bottom:4px;">${esc(asset.title)}</div>
+        <div style="font-family:${typo.ui};font-size:11px;color:rgba(255,255,255,0.68);margin-bottom:${px(space.micro)};">${[asset.category, asset.year, asset.dimensions].filter(Boolean).map(esc).join(' &middot; ')}</div>
+        <span class="lc-arrow" style="font-family:${typo.ui};font-size:12px;color:#fff;">View Artwork &rarr;</span>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="lc-item" style="${gridArea}display:flex;flex-direction:column;cursor:pointer;">
+    <div class="lc-img-wrap" style="flex:1;overflow:hidden;border-radius:6px;"><img class="lc-img" src="${asset.src}" alt="${esc(asset.alt || '')}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
+    <div style="padding-top:${px(space.micro)};">
+      <div style="font-family:${typo.ui};font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:${colors.muted};margin-bottom:3px;">${esc(asset.category || '')}</div>
+      <div style="font-family:${typo.heading};font-size:${typo.cSize};line-height:${typo.cHeight};font-weight:${typo.hWeight};color:${colors.text};">${esc(asset.title)}</div>
+      ${asset.price ? `<div style="font-family:${typo.ui};font-size:11px;color:${colors.muted};margin-top:2px;">${esc(asset.price)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function collectionTopGridHtml(ctx, topSlots) {
+  const { space } = ctx;
+  const gapPx = px(clampNum(space.gap * 0.65, 12, 32));
+  // Spacing should mainly change the gap between images, not their scale —
+  // keep the row unit in a narrow band so compact/rhythmic don't squish
+  // the images into thin strips.
+  const rowUnit = px(clampNum(space.gap * 2 + 96, 130, 185));
+  return `<div class="lc-grid" style="display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:${rowUnit};gap:${gapPx};padding:0 ${px(space.sH)} ${px(space.elem)};">
+    ${topSlots.map(slot => collectionImageCellHtml(ctx, slot)).join('')}
+  </div>`;
+}
+
+function collectionBandHtml(ctx, bandSlots) {
+  const { colors, typo, space, content } = ctx;
+  const gapPx = px(clampNum(space.gap * 0.65, 12, 32));
+  const jt = content.journalTeaser;
+
+  const cell = slot => {
+    if (slot.role === 'studio') {
+      return `<div class="lc-item" style="grid-column:${slot.col};display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-family:${typo.ui};font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:${colors.muted};margin-bottom:${px(space.micro)};">${esc(jt.kicker)}</div>
+        <p style="font-family:${typo.ui};font-size:12.5px;line-height:1.55;color:${colors.soft};margin:0 0 ${px(space.micro)};">${esc(jt.text)}</p>
+        <span class="lc-arrow" style="font-family:${typo.ui};font-size:12px;color:${colors.text};cursor:pointer;">${esc(jt.cta)} &rarr;</span>
+      </div>`;
+    }
+    if (slot.role === 'cta') {
+      return `<div class="lc-item" style="grid-column:${slot.col};background:${colors.text};color:${colors.bg};padding:${px(space.elem)};display:flex;flex-direction:column;justify-content:space-between;">
+        <p style="font-family:${typo.heading};font-size:${typo.hSize};font-weight:${typo.hWeight};line-height:1.28;margin:0;">${esc(content.collectionCta)}</p>
+        <span class="lc-arrow" style="font-family:${typo.ui};font-size:12px;margin-top:${px(space.micro)};cursor:pointer;">Explore the Collection &rarr;</span>
+      </div>`;
+    }
+    return collectionImageCellHtml(ctx, slot);
+  };
+
+  return `<div class="lc-grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:${gapPx};padding:${px(space.elem)} ${px(space.sH)};">
+    ${bandSlots.map(cell).join('')}
+  </div>`;
+}
+
 function gridLayoutHtml(ctx) {
-  const { colors, typo, space, content, cardPhotos, heroPhoto, extraPhotos } = ctx;
-  const pH = px(space.sH);
-  const gapPx = px(Math.max(space.gap / 4, 2));
-  const row1 = [heroPhoto, ...cardPhotos];
-  const row2 = extraPhotos;
+  const layout = getCollectionLayout(ctx.contentFocus, ctx.contentFocus);
   return `<div>
-    <div style="padding:${px(space.elem)} ${pH};border-bottom:1px solid ${colors.border};display:flex;align-items:baseline;justify-content:space-between;">
-      <div>
-        ${labelHtml(typo, colors, content.issue)}
-        <h2 style="font-family:${typo.heading};font-size:${typo.hSize};font-weight:${typo.hWeight};text-transform:${typo.dTransform};letter-spacing:${typo.hTracking};line-height:${typo.hHeight};color:${colors.text};margin:${px(space.micro)} 0 0;">${esc(content.title)}</h2>
-      </div>
-      <div style="text-align:right;">
-        ${labelHtml(typo, colors, content.category)}
-        <div style="font-family:${typo.ui};font-size:11px;color:${colors.muted};margin-top:2px;">${row1.length + row2.length} stories</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:${gapPx};background:${colors.border};">
-      ${row1.map((photo,i) => `<div style="background:${colors.bg};cursor:pointer;">
-        <div style="aspect-ratio:3/4;overflow:hidden;"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
-        <div style="padding:${px(space.micro)} ${px(space.micro+2)};">
-          <div style="margin-bottom:2px;">${labelHtml(typo, colors, (content.cards[i]?.category) || content.category, true)}</div>
-          <div style="font-family:${typo.heading};font-size:${typo.cSize};line-height:${typo.cHeight};font-weight:${typo.hWeight};text-transform:${typo.dTransform};letter-spacing:${typo.hTracking};color:${colors.text};">${esc((content.cards[i]?.title) || content.title)}</div>
-        </div>
-      </div>`).join('')}
-    </div>
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:${gapPx};background:${colors.border};">
-      ${row2.map((photo,i) => `<div style="background:${colors.bg};cursor:pointer;">
-        <div style="aspect-ratio:${i===0?'16/9':'4/3'};overflow:hidden;"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
-        <div style="padding:${px(space.micro)} ${px(space.micro+2)};">
-          <div style="font-family:${typo.heading};font-size:${typo.cSize};line-height:${typo.cHeight};font-weight:${typo.hWeight};text-transform:${typo.dTransform};color:${colors.text};">${esc((content.cards[i%3]?.title) || content.title)}</div>
-          <div style="font-family:${typo.ui};font-size:10px;color:${colors.muted};margin-top:2px;">${esc((content.cards[i%3]?.meta) || '')}</div>
-        </div>
-      </div>`).join('')}
-    </div>
-    <div style="padding:${px(space.elem)} ${pH};">
-      <p style="font-family:${typo.body};font-size:${typo.bSize};line-height:${typo.bHeight};color:${colors.muted};max-width:520px;margin:0;">${esc(content.excerpt)}</p>
-    </div>
+    ${collectionIntroHtml(ctx)}
+    ${collectionTopGridHtml(ctx, layout.top)}
+    ${collectionBandHtml(ctx, layout.band)}
   </div>`;
 }
 
@@ -301,16 +363,28 @@ function renderCanvas() {
 
   const masthead = ctx.layout !== 'feature' ? mastheadHtml(ctx) : '';
 
-  layer.innerHTML = `<div id="canvas-inner" style="opacity:0;transition:opacity .28s ease;">
-    ${masthead}
-    ${bodyHtml}
-    ${footerHtml(ctx)}
-  </div>`;
+  const swapIn = () => {
+    layer.innerHTML = `<div id="canvas-inner" style="opacity:0;transition:opacity .3s ease;">
+      ${masthead}
+      ${bodyHtml}
+      ${footerHtml(ctx)}
+    </div>`;
+    requestAnimationFrame(() => {
+      const inner = document.getElementById('canvas-inner');
+      if (inner) inner.style.opacity = '1';
+    });
+  };
 
-  requestAnimationFrame(() => {
-    const inner = document.getElementById('canvas-inner');
-    if (inner) inner.style.opacity = '1';
-  });
+  // Cross-fade: ease the current view out before swapping in the new one,
+  // instead of cutting straight to the new design.
+  const existing = document.getElementById('canvas-inner');
+  if (existing) {
+    existing.style.transition = 'opacity .16s ease';
+    existing.style.opacity = '0';
+    setTimeout(swapIn, 160);
+  } else {
+    swapIn();
+  }
 }
 
 /* ============================================================================
@@ -342,35 +416,44 @@ const CONTENT_ICONS = {
   product: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="2" y="5.5" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5.5V4a2.5 2.5 0 015 0v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
 };
 
-function mixSwatchHtml(key, design) {
-  if (key === 'typography') return `<div class="mix-swatch" style="background:#1A1A1A;color:#fff;">Ag</div>`;
-  if (key === 'colorStory') { const c = COLORS[design.colorStory]; return `<div class="mix-swatch" style="background:${c.bg};border:1px solid rgba(0,0,0,0.1);"></div>`; }
-  if (key === 'layout') return `<div class="mix-swatch" style="background:#EDEAE4;">${LAYOUT_WIREFRAMES[design.layout].replace('width="100%" height="100%"','width="14" height="10"')}</div>`;
-  if (key === 'spacing') return `<div class="mix-swatch" style="background:#EDEAE4;color:#1A1A1A;font-size:13px;">&#8942;</div>`;
-  if (key === 'contentFocus') return `<div class="mix-swatch" style="background:#1A1A1A;color:#fff;">${CONTENT_ICONS[design.contentFocus]}</div>`;
-  return '';
-}
-
-function currentMixHtml(design, opts) {
-  opts = opts || {};
+/* A single quiet line under the direction title — same jump/pulse behavior
+   as the old chip grid, but plain text instead of a card grid. Shared by
+   both Design Controls ("Current Mix") and Creative Guide ("Current
+   Direction") so the two tabs open on a matching masthead treatment.      */
+function directionSummaryLineHtml(design) {
   const typoLabel = TYPO_OPTIONS.find(t => t.value === design.typography).label;
   const atm = ATMOSPHERES.find(a => a.value === design.colorStory);
   const layoutLabel = LAYOUT_OPTIONS.find(l => l.value === design.layout).label;
   const spacingLabel = SPACING_OPTIONS.find(s => s.value === design.spacing).label;
   const contentLabel = CONTENT_ARCHETYPES.find(c => c.value === design.contentFocus).title;
 
-  const chip = (key, label, value) => `<button class="mix-chip" data-jump="${key}">
-    ${mixSwatchHtml(key, design)}
-    <div class="mix-text"><div class="mix-key">${esc(label)}</div><div class="mix-val">${esc(value)}</div></div>
-  </button>`;
+  const seg = (key, label) => `<button class="direction-seg" data-jump="${key}">${esc(label)}</button>`;
+  const sep = `<span class="direction-sep">&middot;</span>`;
 
-  return `<div class="mix-label">Current Mix</div>
-  <div class="mix-grid">
-    ${chip('typography', 'Type', typoLabel)}
-    ${chip('colorStory', 'Color', atm.name)}
-    ${chip('layout', 'Layout', layoutLabel)}
-    ${chip('spacing', 'Spacing', spacingLabel)}
-    ${chip('contentFocus', 'Content', contentLabel)}
+  return `<div class="direction-summary">
+    ${[
+      seg('typography', typoLabel),
+      seg('colorStory', atm.name),
+      seg('layout', layoutLabel),
+      seg('spacing', spacingLabel),
+      seg('contentFocus', contentLabel),
+    ].join(sep)}
+  </div>`;
+}
+
+function currentMixHtml(design) {
+  return `<div id="current-mix">
+    <div class="mix-label">Current Mix</div>
+    <div class="direction-title">${esc(currentDirectionTitle(design))}</div>
+    ${directionSummaryLineHtml(design)}
+  </div>`;
+}
+
+function currentDirectionHtml(design) {
+  return `<div id="current-direction">
+    <div class="mix-label">Current Direction</div>
+    <div class="direction-title">${esc(currentDirectionTitle(design))}</div>
+    ${directionSummaryLineHtml(design)}
   </div>`;
 }
 
@@ -470,104 +553,122 @@ function designControlsTabHtml(design) {
 
 /* ── Creative Guide tab ─────────────────────────────────────────────────── */
 
-function creativeGuideNoteHtml(design, lastChanged) {
-  const noteKey = lastChanged ? `${lastChanged}:${design[lastChanged]}` : null;
-  const note = noteKey ? (NOTES[noteKey] || DEFAULT_NOTE) : DEFAULT_NOTE;
-  const label = lastChanged ? LABEL_MAP[lastChanged] : null;
-
-  const sectionHtml = ({ key, label: sLabel, icon, kind }) => {
-    const tag = key === 'historical' ? note.era : key === 'movement' ? note.movementName : null;
-    let body;
-    if (kind === 'quote') {
-      body = `<div class="quote-body"><div class="quote-bar"></div><p>&ldquo;${esc(note[key])}&rdquo;</p></div>`;
-    } else if (kind === 'action') {
-      body = `<div class="action-body"><span class="arrow">&rsaquo;</span><p>${esc(note[key])}</p></div>`;
-    } else {
-      body = `<p>${esc(note[key])}</p>`;
-    }
-    return `<div class="cg-note ${kind}">
-      <div class="cg-head">
-        <div class="cg-head-left"><span class="cg-icon">${icon}</span><span class="cg-label">${esc(sLabel)}</span></div>
-        ${tag ? `<span class="cg-tag">${esc(tag)}</span>` : ''}
-      </div>
-      ${body}
-    </div>`;
-  };
-
-  return `
-    ${label ? `<div class="cg-context-tag"><span style="opacity:.5;font-size:8px;">&#9670;</span>${esc(label)}</div>` : ''}
-    ${SECTIONS.map(sectionHtml).join('')}
-  `;
-}
-
-function goDeeperHtml(design) {
-  return `<div class="mix-label" style="margin-top:4px;">Go Deeper</div>
-  <div class="go-deeper-list">
-    ${GO_DEEPER_SLOTS.map(slot => {
-      const key = `${slot.category}:${design[slot.category]}`;
-      return `<button class="go-deeper-card" data-go-deeper="${key}" data-title="${esc(slot.title)}">
-        <div class="go-deeper-thumb"></div>
-        <div class="go-deeper-body"><div class="title">${esc(slot.title)}</div><div class="sub">${esc(slot.sub)}</div></div>
-        <span class="go-deeper-arrow">&rarr;</span>
-      </button>`;
-    }).join('')}
+function theMoveHtml(design) {
+  return `<div class="the-move" id="the-move">
+    <div class="kicker">The Move</div>
+    <h2>${esc(theMoveHeadline(design))}</h2>
+    <p>${esc(theMoveParagraph(design))}</p>
   </div>`;
 }
 
-function inspirationTileHtml(item, idx) {
-  if (item.kind === 'image') return `<button class="insp-tile" data-insp="${idx}"><img src="${item.src}" alt=""/></button>`;
-  if (item.kind === 'type') return `<button class="insp-tile type-tile" data-insp="${idx}"><span>${esc(item.glyph)}</span></button>`;
-  if (item.kind === 'quote') return `<button class="insp-tile quote-tile" data-insp="${idx}"><span>${esc(item.text)}</span></button>`;
-  if (item.kind === 'wordmark') return `<button class="insp-tile wordmark-tile" data-insp="${idx}"><span>${esc(item.text)}</span></button>`;
+const RESOURCE_MONOGRAM = { READ: 'RD', BROWSE: 'BR', STUDY: 'ST', REFERENCE: 'RF' };
+
+function goDeeperCardHtml(r) {
+  // Catalog entries with a real url open that destination directly; the
+  // bespoke READ essays (no url) open the in-app detail modal instead.
+  const tag = r.url ? 'a' : 'button';
+  const attrs = r.url ? `href="${esc(r.url)}" target="_blank" rel="noopener"` : `data-resource="${r.id}"`;
+  return `<${tag} class="go-deeper-card type-${r.type.toLowerCase()}" ${attrs}>
+    <div class="go-deeper-thumb">${RESOURCE_MONOGRAM[r.type] || '·'}</div>
+    <div class="go-deeper-body">
+      <div class="kicker"><span class="type-tag">${esc(r.type)}</span> &middot; ${esc(r.title)}</div>
+      <div class="sub">${esc(r.sub)}</div>
+    </div>
+    <span class="go-deeper-arrow">&#8599;</span>
+  </${tag}>`;
+}
+
+function goDeeperHtml(design, lastChangedCategory) {
+  const resources = pickGoDeeperResources(design, lastChangedCategory);
+  return `<div id="go-deeper-section">
+    <div class="mix-label" style="margin-top:4px;">Go Deeper</div>
+    <div class="go-deeper-list">
+      ${resources.map(goDeeperCardHtml).join('')}
+    </div>
+  </div>`;
+}
+
+function inspirationTileHtml(item) {
+  if (item.kind === 'image') return `<button class="insp-tile" data-insp="${item.id}"><img src="${item.src}" alt=""/></button>`;
+  if (item.kind === 'type') return `<button class="insp-tile type-tile" data-insp="${item.id}"><span>${esc(item.glyph)}</span></button>`;
+  if (item.kind === 'quote') return `<button class="insp-tile quote-tile" data-insp="${item.id}"><span>${esc(item.text)}</span></button>`;
+  if (item.kind === 'wordmark') return `<button class="insp-tile wordmark-tile" data-insp="${item.id}"><span>${esc(item.text)}</span></button>`;
   return '';
 }
 
-function inspirationHtml() {
-  return `<div class="mix-label" style="margin-top:26px;">Inspiration</div>
-  <div class="insp-grid">${INSPIRATION.map(inspirationTileHtml).join('')}</div>`;
+function inspirationHtml(design) {
+  const items = pickInspiration(design);
+  return `<div id="inspiration-section">
+    <div class="mix-label" style="margin-top:26px;">Inspiration</div>
+    <div class="insp-grid">${items.map(inspirationTileHtml).join('')}</div>
+  </div>`;
 }
 
-function creativeGuideTabHtml(design, lastChanged) {
+function creativeGuideTabHtml(design) {
   return `
-    ${currentMixHtml(design)}
-    <div class="the-move">
-      <div class="kicker">The Move</div>
-      <h2>${esc(theMoveHeadline(design))}</h2>
-      <p>${esc(theMoveParagraph(design))}</p>
-    </div>
-    ${goDeeperHtml(design)}
-    ${inspirationHtml()}
-    <div class="mix-label" style="margin-top:26px;">What changed last</div>
-    ${creativeGuideNoteHtml(design, lastChanged)}
+    ${currentDirectionHtml(design)}
+    <div id="guide-toast"></div>
+    ${theMoveHtml(design)}
+    ${goDeeperHtml(design, state.lastChanged && state.lastChanged.category)}
+    ${inspirationHtml(design)}
   `;
 }
 
 /* ── Drawer / pill shell ──────────────────────────────────────────────── */
 
+function ctaButtonHtml() {
+  return `<button class="guide-cta" id="guide-cta-btn">
+    <span class="guide-cta-mark">&#10022;</span>
+    <span class="guide-cta-text"><strong>Creative Guide updated</strong><br>See what ${esc(state.lastChanged.label)} changes &rarr;</span>
+  </button>`;
+}
+
+function wireCtaButton() {
+  const btn = document.getElementById('guide-cta-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    state.activeTab = 'guide';
+    state.guideUnseen = false;
+    state.guideLastSeenDesign = { ...state.design };
+    renderSidebar();
+  });
+}
+
+const PILL_ICONS = {
+  controls: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 2v4M4 14v-4M8 2v7M8 14v-1M12 2v2M12 14v-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="4" cy="8" r="1.6" fill="currentColor"/><circle cx="8" cy="10.5" r="1.6" fill="currentColor"/><circle cx="12" cy="6" r="1.6" fill="currentColor"/></svg>`,
+  guide: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 3.6C6.7 2.7 4.9 2.3 2.4 2.3v9.5c2.5 0 4.3.4 5.6 1.3 1.3-.9 3.1-1.3 5.6-1.3V2.3c-2.5 0-4.3.4-5.6 1.3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 3.6v9.5" stroke="currentColor" stroke-width="1.3"/></svg>`,
+};
+
+function guideTabButtonHtml(active) {
+  return `<button data-tab="guide" class="${active ? 'active' : ''}">Creative Guide<span class="tab-dot ${state.guideUnseen ? 'visible' : ''}" id="guide-tab-dot"></span></button>`;
+}
+
 function renderSidebar() {
   const root = document.getElementById('sidebar-root');
   if (!state.drawerOpen) {
     root.innerHTML = `<div class="lattice-pill">
-      <button data-open-tab="controls">Design Controls <span class="chevron">&#10094;</span></button>
+      <button data-open-tab="controls"><span class="pill-icon">${PILL_ICONS.controls}</span>Controls</button>
       <div class="pill-divider"></div>
-      <button data-open-tab="guide">Creative Guide <span class="chevron">&#10094;</span></button>
+      <button data-open-tab="guide"><span class="pill-icon">${PILL_ICONS.guide}</span>Guide</button>
     </div>`;
     wirePillEvents();
     return;
   }
 
   const tab = state.activeTab;
+  const showCta = tab === 'controls' && state.guideUnseen && state.lastChanged;
   root.innerHTML = `<div class="lattice-drawer">
     <div class="lattice-drawer-header">
       <div class="lattice-tabs">
         <button data-tab="controls" class="${tab === 'controls' ? 'active' : ''}">Design Controls</button>
-        <button data-tab="guide" class="${tab === 'guide' ? 'active' : ''}">Creative Guide</button>
+        ${guideTabButtonHtml(tab === 'guide')}
       </div>
       <button class="lattice-close" id="drawer-close">&times;</button>
     </div>
     <div class="lattice-drawer-body" id="drawer-body">
-      ${tab === 'controls' ? designControlsTabHtml(state.design) : creativeGuideTabHtml(state.design, state.lastChanged)}
+      ${tab === 'controls' ? designControlsTabHtml(state.design) : creativeGuideTabHtml(state.design)}
     </div>
+    <div class="lattice-cta-bar ${showCta ? 'visible' : ''}" id="controls-cta-bar">${showCta ? ctaButtonHtml() : ''}</div>
   </div>`;
   wireDrawerEvents();
 }
@@ -577,6 +678,7 @@ function wirePillEvents() {
     btn.addEventListener('click', () => {
       state.drawerOpen = true;
       state.activeTab = btn.getAttribute('data-open-tab');
+      if (state.activeTab === 'guide') { state.guideUnseen = false; state.guideLastSeenDesign = { ...state.design }; }
       renderSidebar();
     });
   });
@@ -584,11 +686,15 @@ function wirePillEvents() {
 
 function scrollToSection(key) {
   const el = document.getElementById(`section-${key}`);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.classList.add('lattice-pulse');
+  setTimeout(() => el.classList.remove('lattice-pulse'), 900);
 }
 
-function openInspirationModal(idx) {
-  const item = INSPIRATION[idx];
+function openInspirationModal(id) {
+  const item = INSPIRATION_POOL.find(i => i.id === id);
+  if (!item) return;
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `<div class="modal-card">
@@ -612,17 +718,17 @@ function openInspirationModal(idx) {
   document.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc1); } });
 }
 
-function openGoDeeperModal(key, title) {
-  const note = NOTES[key] || DEFAULT_NOTE;
+function openResourceModal(id) {
+  const resource = RESOURCES[id];
+  if (!resource) return;
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `<div class="modal-card">
     <button class="modal-close" id="modal-close">&times;</button>
     <div class="modal-body" style="padding-top:26px;">
-      <div class="kicker">Go Deeper</div>
-      <h3>${esc(title)}</h3>
-      <p style="margin-bottom:14px;">${esc(note.why)}</p>
-      <p style="font-style:italic; color:#8A8780;">${esc(note.historical)}</p>
+      <div class="kicker">${esc(resource.type)}</div>
+      <h3>${esc(resource.title)}</h3>
+      <p>${esc(resource.sub)}</p>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -632,10 +738,152 @@ function openGoDeeperModal(key, title) {
   document.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc1); } });
 }
 
+const SECTION_HTML_BY_KEY = {
+  typography:   typographySelectorHtml,
+  colorStory:   atmosphereSelectorHtml,
+  layout:       layoutSelectorHtml,
+  spacing:      spacingSelectorHtml,
+  contentFocus: contentSelectorHtml,
+};
+
+function fadeIn(el) {
+  el.style.opacity = '0';
+  el.style.transition = 'opacity .22s ease';
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+}
+
+function firstElementFromHtml(html) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html.trim();
+  return wrap.firstElementChild;
+}
+
+function attachDesignKeyHandlers(container) {
+  container.querySelectorAll('[data-key]').forEach(btn => {
+    btn.addEventListener('click', () => handleDesignChange(btn.getAttribute('data-key'), btn.getAttribute('data-value')));
+  });
+}
+
+function attachJumpHandlers(container) {
+  container.querySelectorAll('[data-jump]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-jump');
+      if (state.activeTab !== 'controls') { state.activeTab = 'controls'; renderSidebar(); requestAnimationFrame(() => scrollToSection(key)); return; }
+      scrollToSection(key);
+    });
+  });
+}
+
+function attachResourceHandlers(container) {
+  container.querySelectorAll('[data-resource]').forEach(btn => {
+    btn.addEventListener('click', () => openResourceModal(btn.getAttribute('data-resource')));
+  });
+}
+
+function attachInspirationHandlers(container) {
+  container.querySelectorAll('[data-insp]').forEach(btn => {
+    btn.addEventListener('click', () => openInspirationModal(btn.getAttribute('data-insp')));
+  });
+}
+
+/* Patch a single id-tagged block of the Creative Guide in place — swaps its
+   markup, rewires its own listeners, and fades it in. Keeps the drawer's
+   scroll position steady and avoids a full-panel reload/flash. */
+function patchGuideBlock(id, htmlFn, wireFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const fresh = firstElementFromHtml(htmlFn());
+  el.replaceWith(fresh);
+  if (wireFn) wireFn(fresh);
+  fadeIn(fresh);
+}
+
+function updateGuideInPlace() {
+  patchGuideBlock('current-direction', () => currentDirectionHtml(state.design), attachJumpHandlers);
+  patchGuideBlock('the-move', () => theMoveHtml(state.design));
+  patchGuideBlock('go-deeper-section', () => goDeeperHtml(state.design, state.lastChanged && state.lastChanged.category), attachResourceHandlers);
+  patchGuideBlock('inspiration-section', () => inspirationHtml(state.design), attachInspirationHandlers);
+}
+
+const CATEGORY_TOAST_LABEL = { typography:'TYPE', colorStory:'COLOR', layout:'LAYOUT', spacing:'SPACING', contentFocus:'CONTENT' };
+
+function showGuideToast(changeInfo) {
+  const el = document.getElementById('guide-toast');
+  if (!el) return;
+  const meta = OPTION_META[`${changeInfo.category}:${changeInfo.value}`];
+  el.innerHTML = `<div class="guide-toast-inner">
+    <div class="guide-toast-label">Updated from ${CATEGORY_TOAST_LABEL[changeInfo.category] || ''}</div>
+    <div class="guide-toast-text">${esc(changeInfo.label)} ${esc(meta ? meta.contribution : '')}.</div>
+  </div>`;
+  const inner = el.firstElementChild;
+  fadeIn(inner);
+
+  clearTimeout(el._toastTimer);
+  el._toastTimer = setTimeout(() => {
+    if (!inner.isConnected) return;
+    inner.style.transition = 'opacity .4s ease';
+    inner.style.opacity = '0';
+    setTimeout(() => { if (inner.isConnected) el.innerHTML = ''; }, 400);
+  }, 4000);
+}
+
+function renderControlsCTA() {
+  const bar = document.getElementById('controls-cta-bar');
+  if (!bar) return;
+  const show = state.activeTab === 'controls' && state.guideUnseen && state.lastChanged;
+  if (!show) { bar.innerHTML = ''; bar.classList.remove('visible'); return; }
+  bar.innerHTML = ctaButtonHtml();
+  bar.classList.add('visible');
+  fadeIn(bar.firstElementChild);
+  wireCtaButton();
+}
+
+function renderGuideTabDot() {
+  const dot = document.getElementById('guide-tab-dot');
+  if (!dot) return;
+  dot.classList.toggle('visible', !!state.guideUnseen);
+}
+
+function handleDesignChange(key, value) {
+  if (state.design[key] === value) return;
+  state.design[key] = value;
+  state.lastChanged = { category: key, value, label: optionLabel(key, value) };
+  state.guideUnseen = true;
+  renderCanvas();
+
+  if (state.activeTab === 'guide') {
+    // Guide is the visible tab: update its content in place (no jump/flash)
+    // and surface a brief "updated from X" note.
+    updateGuideInPlace();
+    showGuideToast(state.lastChanged);
+    return;
+  }
+
+  // Controls tab: patch just the changed section + Current Mix chips,
+  // keeping the drawer's scroll position steady.
+  const sectionEl = document.getElementById(`section-${key}`);
+  const mixEl = document.getElementById('current-mix');
+  if (!sectionEl || !mixEl) { renderSidebar(); return; }
+
+  const freshSection = firstElementFromHtml(SECTION_HTML_BY_KEY[key](state.design));
+  sectionEl.replaceWith(freshSection);
+  attachDesignKeyHandlers(freshSection);
+  fadeIn(freshSection);
+
+  const freshMix = firstElementFromHtml(currentMixHtml(state.design));
+  mixEl.replaceWith(freshMix);
+  attachJumpHandlers(freshMix);
+  fadeIn(freshMix);
+
+  renderControlsCTA();
+  renderGuideTabDot();
+}
+
 function wireDrawerEvents() {
   document.querySelectorAll('.lattice-tabs button').forEach(btn => {
     btn.addEventListener('click', () => {
       state.activeTab = btn.getAttribute('data-tab');
+      if (state.activeTab === 'guide') { state.guideUnseen = false; state.guideLastSeenDesign = { ...state.design }; }
       renderSidebar();
     });
   });
@@ -644,32 +892,11 @@ function wireDrawerEvents() {
     renderSidebar();
   });
 
-  document.querySelectorAll('[data-key]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.getAttribute('data-key');
-      const value = btn.getAttribute('data-value');
-      state.design[key] = value;
-      state.lastChanged = key;
-      renderCanvas();
-      renderSidebar();
-    });
-  });
-
-  document.querySelectorAll('[data-jump]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.getAttribute('data-jump');
-      if (state.activeTab !== 'controls') { state.activeTab = 'controls'; renderSidebar(); }
-      requestAnimationFrame(() => scrollToSection(key));
-    });
-  });
-
-  document.querySelectorAll('[data-insp]').forEach(btn => {
-    btn.addEventListener('click', () => openInspirationModal(parseInt(btn.getAttribute('data-insp'), 10)));
-  });
-
-  document.querySelectorAll('[data-go-deeper]').forEach(btn => {
-    btn.addEventListener('click', () => openGoDeeperModal(btn.getAttribute('data-go-deeper'), btn.getAttribute('data-title')));
-  });
+  attachDesignKeyHandlers(document);
+  attachJumpHandlers(document);
+  attachResourceHandlers(document);
+  attachInspirationHandlers(document);
+  wireCtaButton();
 }
 
 /* ── Boot ─────────────────────────────────────────────────────────────── */

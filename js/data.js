@@ -19,6 +19,12 @@ const IMG = {
   featureStudio: 'assets/img/feature-studio.jpg',
   featureMaterials: 'assets/img/feature-materials.jpg',
   featureInterior: 'assets/img/feature-interior.jpg',
+  bookLandscapes: 'assets/img/12.jpg',
+  bookDutch: 'assets/img/13.jpeg',
+  journalSpread: 'assets/img/14.jpg',
+  lamp: 'assets/img/lamp1.jpg',
+  shelf: 'assets/img/shelf.jpg',
+  storage: 'assets/img/storage.jpg',
 };
 
 /* ── Colors (Atmosphere) ─────────────────────────────────────────────────── */
@@ -185,6 +191,8 @@ const CONTENT = {
       { title:'Places We Return To',       category:'Essay',   meta:'Architecture & Memory · 10 min'    },
     ],
     navItems:['Home','Stories','Journal','Archive','About'],
+    journalTeaser: { kicker:'From the Desk', text:'Notes, drafts, and the stories that didn\'t make the issue.', cta:'Visit the Archive' },
+    collectionCta: 'Stories worth returning to.',
   },
   portfolio: {
     brand:'STUDIO', issue:'Archive 2021–24', category:'Selected Works',
@@ -198,6 +206,8 @@ const CONTENT = {
       { title:'Forms in Motion',    category:'Drawing',       meta:'2022 · Series of 12' },
     ],
     navItems:['Work','Archive','Process','About','Contact'],
+    journalTeaser: { kicker:'From the Studio', text:'Works in progress, process notes, and ideas in development.', cta:'Visit the Journal' },
+    collectionCta: 'Work that speaks for itself.',
   },
   brand: {
     brand:'FORMA', issue:'Est. 2018 · Berlin', category:'Creative Studio',
@@ -211,6 +221,8 @@ const CONTENT = {
       { title:'Bureau Communications',  category:'Editorial',      meta:'Cultural Institution · 2023'  },
     ],
     navItems:['Studio','Work','Thinking','Services','Contact'],
+    journalTeaser: { kicker:'From the Studio', text:'Process notes, client work, and the thinking behind the system.', cta:'Visit the Journal' },
+    collectionCta: 'A system built with intention.',
   },
   product: {
     brand:'ATELIER', issue:'Collection 2025', category:'Everyday Objects',
@@ -224,8 +236,12 @@ const CONTENT = {
       { title:'Stone Mug',   category:'Kitchen', meta:'$65'  },
     ],
     navItems:['Collection','Journal','Materials','About','Cart'],
+    journalTeaser: { kicker:'From the Studio', text:'Works in progress, process notes, and ideas from the studio.', cta:'Visit Journal' },
+    collectionCta: 'Curated pieces for living with intention.',
   },
 };
+
+const COLLECTION_STAT_LABEL = { editorial:'Stories', portfolio:'Works', brand:'Projects', product:'Pieces' };
 
 const CARD_PHOTOS = {
   editorial: [IMG.sunset,  IMG.birch,   IMG.tintin],
