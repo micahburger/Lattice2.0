@@ -178,13 +178,11 @@ button { font: inherit; }
 .row-card .row-content { flex: 1; }
 
 .typo-row { padding: 10px 14px 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.typo-preview { font-size: 16px; color: #BBB; line-height: 1.2; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .2s ease; }
+.typo-preview { font-size: 17px; color: #BBB; line-height: 1.2; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .2s ease; }
 .row-card.active .typo-preview { color: #1A1A1A; }
 .typo-meta { text-align: right; flex-shrink: 0; }
-.typo-meta .lbl { font-size: 10px; font-weight: 600; color: #C4C2BE; font-family: 'Inter', system-ui, sans-serif; }
-.row-card.active .typo-meta .lbl { color: #1A1A1A; }
-.typo-meta .sub { font-size: 9px; color: #D4D2CE; margin-top: 1px; }
-.row-card.active .typo-meta .sub { color: #999; }
+.typo-meta .pairing { font-size: 11px; color: #C4C2BE; }
+.row-card.active .typo-meta .pairing { color: #8A8780; }
 
 .atm-row { padding: 9px 12px 9px 10px; display: flex; align-items: center; gap: 11px; }
 .atm-swatch { width: 52px; height: 38px; border-radius: 5px; flex-shrink: 0; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); }

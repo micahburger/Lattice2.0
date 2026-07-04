@@ -464,8 +464,8 @@ function typographySelectorHtml(design) {
     return `<button class="row-card ${active ? 'active' : ''}" data-key="typography" data-value="${opt.value}">
       <div class="accent-bar"></div>
       <div class="row-content typo-row">
-        <span class="typo-preview" style="font-family:${opt.family};">Form &amp; space</span>
-        <div class="typo-meta"><div class="lbl">${esc(opt.label)}</div><div class="sub">${esc(opt.meta)}</div></div>
+        <span class="typo-preview" style="font-family:${opt.family};">${esc(opt.label)}</span>
+        <div class="typo-meta"><div class="pairing">${esc(opt.meta)}</div></div>
       </div>
     </button>`;
   }).join('')}</div>`;
