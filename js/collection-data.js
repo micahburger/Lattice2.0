@@ -66,17 +66,13 @@ const COLLECTION_ASSETS = [
   { id:'quadro-book', src: IMG.quadroDesignBook, alt:'QuadroDesign monograph cover',                aspect:'portrait',  priority:3, contexts:['product','brand'],  category:'Books',     title:'QuadroDesign',           price:'$54'  },
   { id:'architecture-book', src: IMG.architectureBook, alt:'Architecture of Context and Time book, black and white', aspect:'portrait', priority:3, contexts:['product','brand'], category:'Books', title:'Architecture of Context and Time', price:'$62' },
 
-  { id:'sunset',     src: IMG.sunset,          alt:'Painting of a golf course at sunset',          aspect:'landscape', priority:4, contexts:['editorial','portfolio'], category:'Painting', title:'Sunset Field No. 3', year:'2023', dimensions:'80 × 80 cm' },
-  { id:'birch',      src: IMG.birch,           alt:'Painting of a birch tree with clouds',         aspect:'square',    priority:5, contexts:['editorial','portfolio'], category:'Painting', title:'Birch with Cloud',   year:'2024', dimensions:'90 × 70 cm' },
   { id:'golf',       src: IMG.golf,            alt:'Painting of two figures on a fairway',         aspect:'landscape', priority:3, contexts:['editorial','portfolio'], category:'Painting', title:'Fairway Study',      year:'2022' },
-  { id:'tintin',     src: IMG.tintin,          alt:'Painting of a boat on the water',              aspect:'portrait',  priority:4, contexts:['portfolio','editorial'], category:'Print',    title:'Painted Light',      dimensions:'Series of 12' },
   { id:'car',        src: IMG.car,             alt:'Restored off-road vehicle with the doors open',aspect:'portrait',  priority:3, contexts:['brand','portfolio'],     category:'Vehicle',  title:'Expedition Build',   year:'2024' },
   { id:'studio',     src: IMG.featureStudio,   alt:'Wide shot of a design studio',                 aspect:'landscape', priority:3, contexts:['brand','editorial'],     category:'Studio',   title:'The Studio' },
   { id:'interior',   src: IMG.featureInterior, alt:'Sunlit interior corner',                       aspect:'landscape', priority:3, contexts:['editorial','brand'],     category:'Interior', title:'Studio Interior' },
   { id:'journal',    src: IMG.journalSpread,   alt:'Open magazine spread with a forest photograph',aspect:'landscape', priority:4, contexts:['editorial','brand'],     category:'Journal',  title:'Field Journal Vol. 2' },
   { id:'gradient-study', src: IMG.darkGradient, alt:'Abstract glowing color gradient on black',    aspect:'portrait',  priority:4, contexts:['editorial','portfolio','brand'], category:'Print', title:'Spectrum Study' },
   { id:'sphere-study', src: IMG.darkSpheres,   alt:'Rows of abstract gradient spheres on black',   aspect:'portrait',  priority:4, contexts:['editorial','portfolio','brand'], category:'Print', title:'Sphere Study' },
-  { id:'app-ui',     src: IMG.darkAppUI,       alt:'Dark mode phone app showing device usage',     aspect:'portrait',  priority:3, contexts:['brand','product'],       category:'Interface', title:'Device Usage App' },
 ];
 
 /* ── Mood-aware color story matching ──────────────────────────────────────

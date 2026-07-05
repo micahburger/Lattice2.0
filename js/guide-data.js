@@ -335,13 +335,13 @@ function theMoveParagraph(design) {
 /* ── Inspiration pool — tag-scored against the current direction ─────────── */
 
 const INSPIRATION_POOL = [
-  { id:'stillness-framed',      kind:'image',    src:IMG.birch,           tags:['nature','material','green','quiet','minimal','centered'],
+  { id:'stillness-framed',      kind:'image',    src:IMG.featureVase,     tags:['nature','material','green','quiet','minimal','centered'],
     title:'Stillness, Framed', note:'A single subject, a lot of quiet air around it. This is what "let the work breathe" looks like when you actually commit to it — no crowding, no competing elements.' },
   { id:'type-as-voice',         kind:'type',     glyph:'Aa',              tags:['systems','minimal','editorial','tech'],
     title:'Type as Voice', note:'Before color, before layout — the typeface is the first thing a visitor feels. Pick one that argues for your point of view, not just one that’s legible.' },
   { id:'restraint-strategy',    kind:'quote',    text:'Clarity Creates Impact', tags:['minimal','editorial','quiet','structure'],
     title:'Restraint as Strategy', note:'The best editorial and brand systems say less, more precisely. Every element you cut makes the ones that remain louder.' },
-  { id:'material-honesty',      kind:'image',    src:IMG.tintin,          tags:['nature','material','craft','texture','warm'],
+  { id:'material-honesty',      kind:'image',    src:IMG.featureMaterials, tags:['nature','material','craft','texture','warm'],
     title:'Material Honesty', note:'Photography that shows texture and wear reads as trustworthy. Overly polished imagery can undercut the same brand voice it’s meant to support.' },
   { id:'logotype-test',         kind:'wordmark', text:'FORMA',            tags:['identity','studio','systems','print'],
     title:'The Logotype Test', note:'If your wordmark only works in one weight, at one size, on one background — it isn’t finished yet. Test it small, test it reversed, test it alone.' },
@@ -353,7 +353,7 @@ const INSPIRATION_POOL = [
     title:'Night Drive', note:'Dark, glossy, and unhurried. This is the visual register that near-black atmospheres reach for — depth without coldness.' },
   { id:'archive-density',       kind:'quote',    text:'Every Inch Earned', tags:['dense','archive','print','structure'],
     title:'Archive Density', note:'Reference books and broadsheets pack the page because there’s genuinely a lot worth finding. Density reads as seriousness when the grid still holds.' },
-  { id:'gallery-hang',          kind:'image',    src:IMG.sunset,          tags:['gallery','art','photography','image-first'],
+  { id:'gallery-hang',          kind:'image',    src:IMG.darkSpheres,     tags:['gallery','art','photography','image-first'],
     title:'The Gallery Hang', note:'Sequence is an editorial opinion. Which image goes first, and why, says as much about the work as any of the pieces themselves.' },
   { id:'systems-thinking',      kind:'type',     glyph:'01',              tags:['systems','grid','tech','rhythm'],
     title:'Systems Thinking', note:'A number, set plainly, on a grid. Systems aesthetics find beauty in constraint — the rule you set once so you stop deciding on every element.' },

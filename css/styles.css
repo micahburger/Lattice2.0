@@ -46,7 +46,7 @@ button { font: inherit; }
   overflow: hidden;
   display: flex; flex-direction: row; align-items: stretch;
   font-family: 'Inter', system-ui, sans-serif;
-  animation: latticeFadeIn .25s ease;
+  animation: latticeSlideIn .22s cubic-bezier(.22,1,.36,1);
 }
 .lattice-pill button {
   background: none; border: none; color: #F4F1EC;
@@ -70,11 +70,18 @@ button { font: inherit; }
   z-index: 50;
   display: flex; flex-direction: column;
   overflow: hidden;
-  animation: latticeSlideIn .28s cubic-bezier(.22,1,.36,1);
+  animation: latticeSlideIn .24s cubic-bezier(.22,1,.36,1);
+}
+.lattice-drawer.is-closing {
+  animation: latticeSlideOut .18s cubic-bezier(.4,0,1,1) forwards;
 }
 @keyframes latticeSlideIn {
-  from { opacity: 0; transform: translateX(16px); }
+  from { opacity: 0; transform: translateX(36px); }
   to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes latticeSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(36px); }
 }
 @keyframes latticeFadeIn {
   from { opacity: 0; } to { opacity: 1; }
@@ -235,32 +242,38 @@ button { font: inherit; }
 .content-radio { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
 .content-card.active .content-radio { border-color: #1A1A1A; background: #1A1A1A; }
 
+/* ── Guide section divider ────────────────────────────────────────────── */
+.guide-divider { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 24px 0; }
+
 /* ── The Move ─────────────────────────────────────────────────────────── */
-.the-move { margin: 22px 0 26px; }
+.the-move { margin: 0; }
 .the-move .kicker { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #B8B5B0; font-weight: 600; margin-bottom: 8px; }
 .the-move h2 { font-family: 'Newsreader', Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.2; margin: 0 0 10px; color: #1A1A1A; }
 .the-move p { font-size: 13px; line-height: 1.65; color: #55524C; margin: 0; }
 
-/* ── Go Deeper ────────────────────────────────────────────────────────── */
-.go-deeper-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 26px; }
+/* ── Go Deeper — plain divided rows, no card boxes ───────────────────── */
+.go-deeper-list { display: flex; flex-direction: column; }
 .go-deeper-card {
-  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
-  border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 12px;
-  background: #fff; cursor: pointer; transition: border-color .15s ease;
+  display: flex; align-items: flex-start; gap: 14px; width: 100%; text-align: left;
+  padding: 14px 0; border-top: 1px solid rgba(0,0,0,0.08);
+  cursor: pointer; transition: opacity .15s ease;
   text-decoration: none; color: inherit; font: inherit;
 }
-.go-deeper-card:hover { border-color: rgba(0,0,0,0.2); }
+.go-deeper-card:first-child { border-top: none; padding-top: 2px; }
+.go-deeper-card:last-child { padding-bottom: 2px; }
+.go-deeper-card:hover { opacity: .68; }
+.go-deeper-icon { flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px; color: #8A8780; }
+.go-deeper-icon svg { display: block; width: 100%; height: 100%; }
 .go-deeper-body { flex: 1; min-width: 0; }
 .go-deeper-body .kicker { font-size: 11.5px; font-weight: 600; color: #1A1A1A; margin-bottom: 2px; line-height: 1.35; }
 .go-deeper-body .kicker .type-tag { letter-spacing: .04em; }
-/* Muted, distinct tint per resource kind — the small remaining hint of
-   variety now that the thumbnail squares are gone. */
+/* Muted, distinct tint per resource kind. */
 .go-deeper-card.type-in-use .type-tag { color: #8A8780; }
 .go-deeper-card.type-pairing .type-tag { color: #8A6D4B; }
 .go-deeper-card.type-get-the-font .type-tag { color: #3F4A46; }
 .go-deeper-card.type-specimen .type-tag { color: #4A4238; }
 .go-deeper-body .sub { font-size: 11px; color: #999; line-height: 1.35; }
-.go-deeper-arrow { flex-shrink: 0; color: #BBB; font-size: 13px; }
+.go-deeper-arrow { flex-shrink: 0; color: #BBB; font-size: 13px; margin-top: 2px; }
 
 /* ── Inspiration grid ─────────────────────────────────────────────────── */
 .insp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }

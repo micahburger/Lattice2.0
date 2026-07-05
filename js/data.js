@@ -10,13 +10,10 @@
    straight from its folder instead of hand-tagging every entry. Drop a new
    photo into the matching folder and it's already correctly moody.        */
 const IMG = {
-  sunset: 'assets/img/colorful/sunset.jpg',
   cucTee: 'assets/img/light/cuc-tee.jpg',
   dinoTee: 'assets/img/light/dino-tee.jpg',
   cap: 'assets/img/colorful/cap.jpg',
   sneakers: 'assets/img/light/sneakers.jpg',
-  tintin: 'assets/img/dark/tintin.jpg',
-  birch: 'assets/img/light/birch.jpg',
   car: 'assets/img/colorful/car.jpg',
   golf: 'assets/img/light/golf.jpg',
   featureVase: 'assets/img/light/feature-vase.jpg',
@@ -33,7 +30,6 @@ const IMG = {
   clock2: 'assets/img/colorful/clock2.jpg',
   darkGradient: 'assets/img/dark/gradient-study.jpg',
   darkSpheres: 'assets/img/dark/sphere-study.jpg',
-  darkAppUI: 'assets/img/dark/app-ui.jpg',
   mediaConsole: 'assets/img/colorful/media-console.jpg',
   studioMonitor: 'assets/img/dark/studio-monitor.jpg',
   darkAlarmClock: 'assets/img/dark/alarm-clock.jpg',
@@ -258,22 +254,16 @@ const CONTENT = {
 const COLLECTION_STAT_LABEL = { editorial:'Stories', portfolio:'Works', brand:'Projects', product:'Pieces' };
 
 const CARD_PHOTOS = {
-  editorial: [IMG.sunset,  IMG.birch,   IMG.tintin],
-  portfolio: [IMG.golf,    IMG.birch,   IMG.tintin],
-  brand:     [IMG.birch,   IMG.sunset,  IMG.tintin],
-  product:   [IMG.cucTee,  IMG.dinoTee, IMG.cap   ],
+  editorial: [IMG.journalSpread, IMG.darkGradient,     IMG.darkSpheres],
+  portfolio: [IMG.golf,          IMG.darkSpheres,      IMG.car        ],
+  brand:     [IMG.journalSpread, IMG.architectureBook, IMG.quadroDesignBook],
+  product:   [IMG.cucTee,        IMG.dinoTee,          IMG.cap        ],
 };
 const HERO_PHOTOS = {
   editorial: IMG.golf,
-  portfolio: IMG.sunset,
+  portfolio: IMG.darkGradient,
   brand:     IMG.car,
   product:   IMG.sneakers,
-};
-const GRID_EXTRA = {
-  editorial: [IMG.car,     IMG.golf,     IMG.birch ],
-  portfolio: [IMG.sunset,  IMG.tintin,   IMG.golf  ],
-  brand:     [IMG.dinoTee, IMG.birch,    IMG.sunset],
-  product:   [IMG.car,     IMG.sneakers, IMG.golf  ],
 };
 const FEATURE_HEROES = {
   editorial: IMG.featureInterior,
