@@ -73,7 +73,7 @@ function logoHtml(ctx, fg) {
 function navItemsHtml(ctx, items, fg) {
   const { typo } = ctx;
   return `<div style="display:flex;gap:28px;">${items.map(item =>
-    `<span style="font-family:${typo.ui};font-size:11px;color:${fg};letter-spacing:${typo.lTracking};text-transform:${typo.lTransform};cursor:pointer;line-height:1;">${esc(item)}</span>`
+    `<span class="nav-intro-trigger" style="font-family:${typo.ui};font-size:11px;color:${fg};letter-spacing:${typo.lTracking};text-transform:${typo.lTransform};cursor:pointer;line-height:1;">${esc(item)}</span>`
   ).join('')}</div>`;
 }
 
@@ -105,9 +105,7 @@ function mastheadHtml(ctx, opts) {
     return `<nav style="background:${colors.navBg};position:sticky;top:0;z-index:20;border-bottom:1px solid ${colors.border};">
       <div style="padding:0 ${pH};height:${px(space.navH)};display:flex;align-items:center;">
         <div style="flex:0 0 22%;">${logoHtml(ctx, colors.navText)}</div>
-        <div style="flex:1;display:flex;justify-content:center;gap:28px;">
-          ${content.navItems.slice(0,4).map(item => `<span style="font-family:${typo.ui};font-size:11px;color:${colors.navMuted};letter-spacing:${typo.lTracking};text-transform:${typo.lTransform};cursor:pointer;">${esc(item)}</span>`).join('')}
-        </div>
+        <div style="flex:1;display:flex;justify-content:center;">${navItemsHtml(ctx, content.navItems.slice(0,4), colors.navMuted)}</div>
         <div style="flex:0 0 22%;display:flex;justify-content:flex-end;">${utilityHtml(utl, colors.navMuted, colors.navText)}</div>
       </div>
     </nav>`;
@@ -417,6 +415,18 @@ function wireParallax() {
     parallaxTicking = true;
     requestAnimationFrame(applyParallax);
   }, { passive: true });
+}
+
+// Canvas markup is rebuilt wholesale on every design change, so nav links
+// are wired once via delegation instead of re-binding after each render.
+// A quick way to reopen the intro modal on demand (e.g. while iterating on
+// its copy/design) without clearing localStorage each time.
+function wireCanvasNavIntroTrigger() {
+  const layer = document.getElementById('canvas-layer');
+  if (!layer) return;
+  layer.addEventListener('click', e => {
+    if (e.target.closest('.nav-intro-trigger')) showIntroModal();
+  });
 }
 
 /* ============================================================================
@@ -975,6 +985,7 @@ function closeIntroModal() {
 }
 
 function showIntroModal() {
+  if (document.getElementById('intro-modal-overlay')) return;
   const wrap = document.createElement('div');
   wrap.innerHTML = introModalHtml();
   document.body.appendChild(wrap.firstElementChild);
@@ -999,6 +1010,7 @@ function init() {
   renderCanvas();
   renderSidebar();
   wireParallax();
+  wireCanvasNavIntroTrigger();
   maybeShowIntroModal();
 }
 
