@@ -35,6 +35,10 @@ const IMG = {
   darkAlarmClock: 'assets/img/dark/alarm-clock.jpg',
   quadroDesignBook: 'assets/img/light/quadro-book.jpg',
   architectureBook: 'assets/img/dark/architecture-book.jpg',
+  wideArchitecture: 'assets/img/light/wide1.jpg',
+  wideLiving:       'assets/img/light/wide2.jpg',
+  wideBar:          'assets/img/dark/wide.png',
+  wideLounge:       'assets/img/dark/wide3.png',
 };
 
 /* ── Colors (Atmosphere) ─────────────────────────────────────────────────── */
@@ -254,16 +258,16 @@ const CONTENT = {
 const COLLECTION_STAT_LABEL = { editorial:'Stories', portfolio:'Works', brand:'Projects', product:'Pieces' };
 
 const CARD_PHOTOS = {
-  editorial: [IMG.journalSpread, IMG.darkGradient,     IMG.darkSpheres],
-  portfolio: [IMG.golf,          IMG.darkSpheres,      IMG.car        ],
-  brand:     [IMG.journalSpread, IMG.architectureBook, IMG.quadroDesignBook],
-  product:   [IMG.cucTee,        IMG.dinoTee,          IMG.cap        ],
+  editorial: [IMG.journalSpread,  IMG.bookDutch,        IMG.darkSpheres],
+  portfolio: [IMG.golf,           IMG.darkSpheres,      IMG.car        ],
+  brand:     [IMG.studioMonitor,  IMG.architectureBook, IMG.quadroDesignBook],
+  product:   [IMG.storage,        IMG.shelf,            IMG.cap        ],
 };
 const HERO_PHOTOS = {
-  editorial: IMG.golf,
-  portfolio: IMG.darkGradient,
-  brand:     IMG.car,
-  product:   IMG.sneakers,
+  editorial: IMG.wideArchitecture,
+  portfolio: IMG.wideLounge,
+  brand:     IMG.wideBar,
+  product:   IMG.wideLiving,
 };
 const FEATURE_HEROES = {
   editorial: IMG.featureInterior,

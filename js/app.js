@@ -183,7 +183,7 @@ function minimalLayoutHtml(ctx) {
       <h1 style="font-family:${typo.heading};font-size:${typo.dSize};line-height:${typo.dHeight};letter-spacing:${typo.dTracking};font-weight:${typo.dWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${el};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
       <p style="font-family:${typo.ui};font-size:14px;line-height:1.62;color:${colors.soft};margin:0;max-width:460px;">${esc(content.subtitle)}</p>
     </div>
-    <div style="height:54vh;overflow:hidden;"><img src="${ctx.heroPhoto}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
+    <div class="parallax-hero" style="height:54vh;overflow:hidden;position:relative;"><img class="parallax-img" src="${ctx.heroPhoto}" alt="" style="width:100%;height:118%;object-fit:cover;display:block;position:absolute;top:-9%;left:0;"/></div>
     <div style="border-top:1px solid ${colors.border};">
       <div style="display:flex;align-items:center;padding:${el} ${sH};border-bottom:1px solid ${colors.border};">
         ${labelHtml(typo, colors, 'Selected Work')}
@@ -372,6 +372,7 @@ function renderCanvas() {
     requestAnimationFrame(() => {
       const inner = document.getElementById('canvas-inner');
       if (inner) inner.style.opacity = '1';
+      applyParallax();
     });
   };
 
@@ -385,6 +386,37 @@ function renderCanvas() {
   } else {
     swapIn();
   }
+}
+
+/* Hero image drifts opposite the scroll so it reads as parallax, not a
+   plain scroll — the image is oversized (118% height) so the shift never
+   reveals an edge. Re-queried on every scroll tick rather than cached
+   because renderCanvas() replaces #canvas-inner wholesale on design change. */
+const PARALLAX_MAX_PX = 22;
+let parallaxTicking = false;
+
+function applyParallax() {
+  parallaxTicking = false;
+  const layer = document.getElementById('canvas-layer');
+  if (!layer) return;
+  const layerRect = layer.getBoundingClientRect();
+  document.querySelectorAll('.parallax-img').forEach(img => {
+    const rect = img.parentElement.getBoundingClientRect();
+    const center = rect.top + rect.height / 2 - layerRect.top;
+    const viewCenter = layerRect.height / 2;
+    const offset = clampNum((viewCenter - center) * 0.08, -PARALLAX_MAX_PX, PARALLAX_MAX_PX);
+    img.style.transform = `translateY(${offset}px)`;
+  });
+}
+
+function wireParallax() {
+  const layer = document.getElementById('canvas-layer');
+  if (!layer) return;
+  layer.addEventListener('scroll', () => {
+    if (parallaxTicking) return;
+    parallaxTicking = true;
+    requestAnimationFrame(applyParallax);
+  }, { passive: true });
 }
 
 /* ============================================================================
@@ -901,6 +933,7 @@ function wireDrawerEvents() {
 function init() {
   renderCanvas();
   renderSidebar();
+  wireParallax();
 }
 
 document.addEventListener('DOMContentLoaded', init);

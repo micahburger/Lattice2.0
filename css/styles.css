@@ -17,6 +17,7 @@ button { font: inherit; }
   transition: background-color .4s ease;
 }
 #canvas-inner { min-height: 100%; }
+.parallax-img { will-change: transform; transition: transform .08s linear; }
 
 /* ── Collection grid (grid layout / editorial masonry) ────────────────── */
 .lc-item .lc-img { transition: transform .45s ease; }
