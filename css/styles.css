@@ -315,6 +315,48 @@ button { font: inherit; }
 .modal-body h3 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 22px; margin: 0 0 10px; color: #1A1A1A; }
 .modal-body p { font-size: 13px; line-height: 1.6; color: #55524C; margin: 0; }
 
+/* ── First-visit intro modal ──────────────────────────────────────────── */
+.intro-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200;
+  display: flex; align-items: center; justify-content: center; padding: 30px;
+  animation: latticeFadeIn .2s ease;
+}
+.intro-modal-overlay.is-closing { animation: introFadeOut .16s ease forwards; }
+@keyframes introFadeOut { from { opacity: 1; } to { opacity: 0; } }
+.intro-modal-card {
+  background: #fff; border-radius: 20px; max-width: 500px; width: 100%;
+  max-height: calc(100vh - 60px); overflow-y: auto; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4); padding: 36px 36px 28px;
+}
+.intro-modal-title {
+  font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 30px;
+  line-height: 1.18; color: #1A1A1A; margin: 0 0 14px; padding-right: 24px;
+}
+.intro-modal-lede { font-size: 13.5px; line-height: 1.65; color: #55524C; margin: 0 0 22px; }
+.intro-steps { border-top: 1px solid rgba(0,0,0,0.08); margin-bottom: 22px; }
+.intro-step {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.intro-step-visual {
+  flex-shrink: 0; width: 118px; height: 59px; border-radius: 8px; overflow: hidden;
+  background: #F4F2EF;
+}
+.intro-step-visual img { width: 100%; height: 100%; object-fit: cover; object-position: left top; display: block; }
+.intro-step-text h3 { font-family: 'Inter', system-ui, sans-serif; font-size: 13.5px; font-weight: 600; color: #1A1A1A; margin: 0 0 4px; }
+.intro-step-text p { font-size: 12px; line-height: 1.55; color: #7A7772; margin: 0; }
+.intro-cta {
+  display: block; width: 100%; border: none; border-radius: 10px; background: #1A1A1A;
+  color: #fff; font: inherit; font-size: 13.5px; font-weight: 600; padding: 14px; cursor: pointer;
+  transition: opacity .15s ease;
+}
+.intro-cta:hover { opacity: .88; }
+@media (max-width: 560px) {
+  .intro-modal-card { padding: 28px 22px 22px; }
+  .intro-modal-title { font-size: 24px; }
+  .intro-step-visual { width: 96px; height: 48px; }
+}
+
 /* ── Scrollbars (subtle) ──────────────────────────────────────────────── */
 .lattice-drawer-body::-webkit-scrollbar, #canvas-layer::-webkit-scrollbar { width: 8px; }
 .lattice-drawer-body::-webkit-scrollbar-thumb, #canvas-layer::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }

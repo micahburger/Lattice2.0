@@ -933,12 +933,73 @@ function wireDrawerEvents() {
   wireCtaButton();
 }
 
+/* ── First-visit intro modal ──────────────────────────────────────────── */
+
+const INTRO_SEEN_KEY = 'latticeIntroSeen';
+
+const INTRO_STEPS = [
+  { img: () => IMG.introControls, title:'1. Shape the mix',
+    body:'Choose type, color, layout, spacing, and content. Nothing is precious. Click around.' },
+  { img: () => IMG.introGuide, title:'2. Watch it move',
+    body:'Every decision changes the page live, so you can feel the difference between “fine” and “oh, there it is.”' },
+  { img: () => IMG.introDeeper, title:'3. Follow the thread',
+    body:'Open Creative Guide for the references, type pairings, and visual breadcrumbs behind the direction you made.' },
+];
+
+function introModalHtml() {
+  return `<div class="intro-modal-overlay" id="intro-modal-overlay">
+    <div class="intro-modal-card">
+      <button class="modal-close" id="intro-modal-close">&times;</button>
+      <h2 class="intro-modal-title">Make a few choices.<br/>See what they do.</h2>
+      <p class="intro-modal-lede">Pick a type voice, shift the atmosphere, rearrange the page, then watch the whole system respond. This is a place to test your instincts, make strange combinations, and learn why some choices click.</p>
+      <div class="intro-steps">
+        ${INTRO_STEPS.map(step => `<div class="intro-step">
+          <div class="intro-step-visual"><img src="${step.img()}" alt=""/></div>
+          <div class="intro-step-text">
+            <h3>${esc(step.title)}</h3>
+            <p>${esc(step.body)}</p>
+          </div>
+        </div>`).join('')}
+      </div>
+      <button class="intro-cta" id="intro-modal-cta">Start making things</button>
+    </div>
+  </div>`;
+}
+
+function closeIntroModal() {
+  const overlay = document.getElementById('intro-modal-overlay');
+  if (!overlay) return;
+  overlay.classList.add('is-closing');
+  setTimeout(() => overlay.remove(), 160);
+  try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch (e) { /* private mode — just skip persisting */ }
+}
+
+function showIntroModal() {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = introModalHtml();
+  document.body.appendChild(wrap.firstElementChild);
+  const overlay = document.getElementById('intro-modal-overlay');
+  overlay.querySelector('#intro-modal-close').addEventListener('click', closeIntroModal);
+  overlay.querySelector('#intro-modal-cta').addEventListener('click', closeIntroModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeIntroModal(); });
+  document.addEventListener('keydown', function esc1(e) {
+    if (e.key === 'Escape') { closeIntroModal(); document.removeEventListener('keydown', esc1); }
+  });
+}
+
+function maybeShowIntroModal() {
+  let seen = false;
+  try { seen = localStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch (e) { /* private mode — always show */ }
+  if (!seen) showIntroModal();
+}
+
 /* ── Boot ─────────────────────────────────────────────────────────────── */
 
 function init() {
   renderCanvas();
   renderSidebar();
   wireParallax();
+  maybeShowIntroModal();
 }
 
 document.addEventListener('DOMContentLoaded', init);

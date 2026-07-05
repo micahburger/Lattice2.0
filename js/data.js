@@ -39,6 +39,9 @@ const IMG = {
   wideLiving:       'assets/img/light/wide2.jpg',
   wideBar:          'assets/img/dark/wide.png',
   wideLounge:       'assets/img/dark/wide3.png',
+  introControls:    'assets/img/intro/step-controls.png',
+  introGuide:       'assets/img/intro/step-guide.png',
+  introDeeper:      'assets/img/intro/step-deeper.png',
 };
 
 /* ── Colors (Atmosphere) ─────────────────────────────────────────────────── */
