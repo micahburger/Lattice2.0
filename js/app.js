@@ -147,7 +147,7 @@ function magazineLayoutHtml(ctx) {
       <div style="padding:${sV} ${sH};display:flex;flex-direction:column;justify-content:center;border-right:1px solid ${colors.border};">
         <div style="margin-bottom:${el};"><span style="font-family:${typo.ui};font-size:11px;letter-spacing:0.06em;color:${colors.text};line-height:1;">${esc(content.brand)} &middot; ${esc(content.issue)}</span></div>
         <h1 style="font-family:${typo.heading};font-size:${typo.dSize};line-height:${typo.dHeight};letter-spacing:${typo.dTracking};font-weight:${typo.dWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${el};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
-        <p style="font-family:${typo.ui};font-size:14px;line-height:1.62;color:${colors.soft};margin:0 0 ${el};max-width:360px;">${esc(content.subtitle)}</p>
+        <p style="font-family:${typo.body};font-size:14px;line-height:1.62;color:${colors.soft};margin:0 0 ${el};max-width:360px;">${esc(content.subtitle)}</p>
         <span style="font-family:${typo.ui};font-size:13px;color:${colors.text};text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer;">Read the latest essay &rarr;</span>
       </div>
       <div style="overflow:hidden;position:relative;"><img src="${ctx.heroPhoto}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
@@ -179,7 +179,7 @@ function minimalLayoutHtml(ctx) {
         ${labelHtml(typo, colors, content.category)}
       </div>
       <h1 style="font-family:${typo.heading};font-size:${typo.dSize};line-height:${typo.dHeight};letter-spacing:${typo.dTracking};font-weight:${typo.dWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${el};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
-      <p style="font-family:${typo.ui};font-size:14px;line-height:1.62;color:${colors.soft};margin:0;max-width:460px;">${esc(content.subtitle)}</p>
+      <p style="font-family:${typo.body};font-size:14px;line-height:1.62;color:${colors.soft};margin:0;max-width:460px;">${esc(content.subtitle)}</p>
     </div>
     <div class="parallax-hero" style="height:54vh;overflow:hidden;position:relative;"><img class="parallax-img" src="${ctx.heroPhoto}" alt="" style="width:100%;height:118%;object-fit:cover;display:block;position:absolute;top:-9%;left:0;"/></div>
     <div style="border-top:1px solid ${colors.border};">
@@ -222,7 +222,7 @@ function collectionIntroHtml(ctx) {
   return `<div style="padding:${sV} ${pH} ${px(space.elem)};max-width:600px;">
     <div style="margin-bottom:${px(space.micro)};">${labelHtml(typo, colors, content.issue)}</div>
     <h1 style="font-family:${typo.heading};font-size:${typo.dSize};line-height:${typo.dHeight};letter-spacing:${typo.dTracking};font-weight:${typo.dWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${px(space.micro*1.6)};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
-    <p style="font-family:${typo.ui};font-size:14px;line-height:1.62;color:${colors.soft};margin:0 0 ${px(space.gap)};max-width:440px;">${esc(content.subtitle)}</p>
+    <p style="font-family:${typo.body};font-size:14px;line-height:1.62;color:${colors.soft};margin:0 0 ${px(space.gap)};max-width:440px;">${esc(content.subtitle)}</p>
     <div style="display:flex;align-items:center;gap:${px(space.gap)};flex-wrap:wrap;">
       <span class="lc-arrow" style="display:inline-flex;align-items:center;gap:8px;font-family:${typo.ui};font-size:12px;font-weight:600;letter-spacing:0.02em;color:${colors.accentFg};background:${colors.accent};padding:11px 20px;cursor:pointer;">Explore the Collection &rarr;</span>
       <span style="font-family:${typo.ui};font-size:11px;color:${colors.muted};"><strong style="color:${colors.text};font-weight:600;">${count}</strong> ${esc(statLabel)}</span>
@@ -314,7 +314,7 @@ function featureLayoutHtml(ctx) {
     <div style="position:relative;display:grid;grid-template-columns:50% 50%;min-height:90vh;">
       <div style="background:${colors.bg};display:flex;flex-direction:column;justify-content:flex-end;padding:${sV} ${sH};padding-top:calc(${px(space.navH)} + ${sV});">
         <h1 style="font-family:${typo.heading};font-size:clamp(36px,5.2vw,72px);line-height:1.04;font-weight:${typo.dWeight};text-transform:${typo.dTransform};letter-spacing:${typo.dTracking};color:${colors.text};margin:0 0 ${el};white-space:pre-line;">${titleLinesHtml(content.title)}</h1>
-        <p style="font-family:${typo.ui};font-size:15px;line-height:1.62;color:${colors.soft};margin:0 0 ${px(space.gap)};max-width:380px;">${esc(content.subtitle)}</p>
+        <p style="font-family:${typo.body};font-size:15px;line-height:1.62;color:${colors.soft};margin:0 0 ${px(space.gap)};max-width:380px;">${esc(content.subtitle)}</p>
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-family:${typo.ui};font-size:14px;color:${colors.muted};line-height:1;">&darr;</span>
           <span style="font-family:${typo.ui};font-size:11px;color:${colors.muted};letter-spacing:0.1em;">Scroll</span>
