@@ -560,22 +560,27 @@ function contentSelectorHtml(design) {
 function designControlsTabHtml(design) {
   return `
     ${currentMixHtml(design)}
+    ${guideDividerHtml()}
     <div class="control-section">
       <div class="section-label">Typography</div>
       ${typographySelectorHtml(design)}
     </div>
+    ${guideDividerHtml()}
     <div class="control-section">
       <div class="section-label">Atmosphere</div>
       ${atmosphereSelectorHtml(design)}
     </div>
+    ${guideDividerHtml()}
     <div class="control-section">
       <div class="section-label">Layout</div>
       ${layoutSelectorHtml(design)}
     </div>
+    ${guideDividerHtml()}
     <div class="control-section">
       <div class="section-label">Spacing</div>
       ${spacingSelectorHtml(design)}
     </div>
+    ${guideDividerHtml()}
     <div class="control-section">
       <div class="section-label">Content</div>
       ${contentSelectorHtml(design)}
