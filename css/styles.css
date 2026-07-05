@@ -339,7 +339,8 @@ button { font: inherit; }
   padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 .intro-step-visual {
-  flex-shrink: 0; width: 118px; height: 59px; border-radius: 8px; overflow: hidden;
+  /* Sized to the 1000x563 (16:9) step images, then scaled up 20%. */
+  flex-shrink: 0; width: 128px; height: 72px; border-radius: 8px; overflow: hidden;
   background: #F4F2EF;
 }
 .intro-step-visual img { width: 100%; height: 100%; object-fit: cover; object-position: left top; display: block; }
@@ -354,7 +355,7 @@ button { font: inherit; }
 @media (max-width: 560px) {
   .intro-modal-card { padding: 28px 22px 22px; }
   .intro-modal-title { font-size: 24px; }
-  .intro-step-visual { width: 96px; height: 48px; }
+  .intro-step-visual { width: 104px; height: 59px; }
 }
 
 /* ── Scrollbars (subtle) ──────────────────────────────────────────────── */
