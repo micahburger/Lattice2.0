@@ -42,7 +42,7 @@ function buildCtx(design) {
     contentFocus: design.contentFocus,
     colorStory: design.colorStory,
     cardPhotos: photos.cardPhotos,
-    heroPhoto: photos.heroPhoto,
+    heroPhoto: HERO_PHOTOS[design.contentFocus],
     featureHero: photos.featureHero,
   };
 }
@@ -328,12 +328,12 @@ function featureLayoutHtml(ctx) {
         ${utilityHtml(utl, colors.muted, colors.text)}
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid ${colors.border};">
-      ${cardPhotos.slice(0,2).map((photo,i) => `<div style="padding:${el};${i===0?`border-right:1px solid ${colors.border};`:''}cursor:pointer;">
-        <div style="aspect-ratio:16/10;overflow:hidden;margin-bottom:${mc};"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid ${colors.border};">
+      ${cardPhotos.slice(0,3).map((photo,i) => `<div style="padding:${px(Math.round(space.elem * 0.7))};${i<2?`border-right:1px solid ${colors.border};`:''}cursor:pointer;">
+        <div style="aspect-ratio:4/3;overflow:hidden;margin-bottom:${mc};"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>
         <div style="margin-bottom:${mc};">${labelHtml(typo, colors, (content.cards[i]?.category)||'', true)}</div>
-        <h3 style="font-family:${typo.heading};font-size:${typo.hSize};line-height:${typo.hHeight};font-weight:${typo.hWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${mc};">${esc((content.cards[i]?.title)||'')}</h3>
-        <p style="font-family:${typo.body};font-size:${typo.bSize};line-height:${typo.bHeight};color:${colors.muted};margin:0 0 ${mc};">${esc(content.excerpt.substring(0,100))}&hellip;</p>
+        <h3 style="font-family:${typo.heading};font-size:${typo.cSize};line-height:${typo.cHeight};font-weight:${typo.hWeight};text-transform:${typo.dTransform};color:${colors.text};margin:0 0 ${mc};">${esc((content.cards[i]?.title)||'')}</h3>
+        <p style="font-family:${typo.body};font-size:${typo.bSize};line-height:${typo.bHeight};color:${colors.muted};margin:0 0 ${mc};">${esc(content.excerpt.substring(0,70))}&hellip;</p>
         <span style="font-family:${typo.ui};font-size:11px;color:${colors.muted};">${esc((content.cards[i]?.meta)||'')}</span>
       </div>`).join('')}
     </div>

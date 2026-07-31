@@ -288,3 +288,15 @@ const FEATURE_PHOTO_FOLDERS = {
   brand:     ['designPrint', 'gadgets'],
   product:   ['woodworking', 'gadgets'],
 };
+
+/* The magazine/minimal layouts' wide banner hero is a very short, very wide
+   crop — it needs a photo actually composed for that shape and at decent
+   resolution. The themed pools above are portrait/square shots that turn
+   soft and awkward when stretched into that strip, so this one stays
+   pinned to the dedicated wide images instead of rotating. */
+const HERO_PHOTOS = {
+  editorial: IMG.wideArchitecture,
+  portfolio: IMG.wideLounge,
+  brand:     IMG.wideBar,
+  product:   IMG.wideLiving,
+};

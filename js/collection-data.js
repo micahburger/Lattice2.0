@@ -37,13 +37,14 @@ function seededShuffle(arr, seed) {
 }
 
 /* ── Canvas feature photos — themed pools, reshuffled per page load ──────
-   The canvas preview's hero / feature-hero / card thumbnails used to be
+   The canvas preview's feature-hero / card thumbnails used to be
    hand-pinned to one fixed image per content focus, so the same painting
    or the same product shot showed up every single time. Instead, each
    content focus draws from its FEATURE_PHOTO_FOLDERS (data.js) and gets a
-   freshly shuffled slice — a different hero and card set on every reload,
-   with editorial/portfolio/brand/product each pulling from their own
-   folder pair so they stay visually distinct from one another.           */
+   freshly shuffled slice — a different feature-hero and card set on every
+   reload, with editorial/portfolio/brand/product each pulling from their
+   own folder pair so they stay visually distinct from one another. (The
+   wide banner heroPhoto is excluded — see HERO_PHOTOS in data.js.)       */
 const FEATURE_PHOTO_SEED = Math.floor(Math.random() * 99991);
 
 function pickFeaturePhotos(contentFocus) {
@@ -51,9 +52,8 @@ function pickFeaturePhotos(contentFocus) {
   const pool = [].concat(...folderKeys.map(key => THEME_FOLDERS[key]));
   const shuffled = seededShuffle(pool, `${contentFocus}-feature-${FEATURE_PHOTO_SEED}`);
   return {
-    heroPhoto: shuffled[0],
-    featureHero: shuffled[1],
-    cardPhotos: [shuffled[2], shuffled[3], shuffled[4]],
+    featureHero: shuffled[0],
+    cardPhotos: [shuffled[1], shuffled[2], shuffled[3]],
   };
 }
 
