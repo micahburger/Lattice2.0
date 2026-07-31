@@ -332,62 +332,60 @@ function theMoveParagraph(design) {
   return `${sentence1} ${sentence2} ${sentence3}`;
 }
 
-/* ── Inspiration pool — tag-scored against the current direction ─────────── */
+/* ── Inspiration imagery — scene-driven photo pools ───────────────────────
+   Pulls from THEME_FOLDERS (data.js) — the same folder manifest the canvas
+   preview's feature photos use. Every atmosphere draws from whichever
+   folder(s) match its register; drop a new photo into a folder and it's
+   in rotation automatically. */
 
-const INSPIRATION_POOL = [
-  { id:'stillness-framed',      kind:'image',    src:IMG.featureVase,     tags:['nature','material','green','quiet','minimal','centered'],
-    title:'Stillness, Framed', note:'A single subject, a lot of quiet air around it. This is what "let the work breathe" looks like when you actually commit to it — no crowding, no competing elements.' },
-  { id:'type-as-voice',         kind:'type',     glyph:'Aa',              tags:['systems','minimal','editorial','tech'],
-    title:'Type as Voice', note:'Before color, before layout — the typeface is the first thing a visitor feels. Pick one that argues for your point of view, not just one that’s legible.' },
-  { id:'restraint-strategy',    kind:'quote',    text:'Clarity Creates Impact', tags:['minimal','editorial','quiet','structure'],
-    title:'Restraint as Strategy', note:'The best editorial and brand systems say less, more precisely. Every element you cut makes the ones that remain louder.' },
-  { id:'material-honesty',      kind:'image',    src:IMG.featureMaterials, tags:['nature','material','craft','texture','warm'],
-    title:'Material Honesty', note:'Photography that shows texture and wear reads as trustworthy. Overly polished imagery can undercut the same brand voice it’s meant to support.' },
-  { id:'logotype-test',         kind:'wordmark', text:'FORMA',            tags:['identity','studio','systems','print'],
-    title:'The Logotype Test', note:'If your wordmark only works in one weight, at one size, on one background — it isn’t finished yet. Test it small, test it reversed, test it alone.' },
-  { id:'negative-space',        kind:'image',    src:IMG.golf,            tags:['space','quiet','luxury','minimal'],
-    title:'Negative Space at Work', note:'The empty two-thirds of this frame is doing as much storytelling as the figure in it. Generous spacing in a layout works on the same principle.' },
-  { id:'red-as-argument',       kind:'quote',    text:'Color Is Argument', tags:['red','graphic','poster','contrast'],
-    title:'Red as Argument', note:'Saturated color used as the entire field, not an accent, is a Swiss poster move. It tells the reader the color itself is the point.' },
-  { id:'night-drive',           kind:'image',    src:IMG.car,             tags:['dark','night','film','luxury','drama'],
-    title:'Night Drive', note:'Dark, glossy, and unhurried. This is the visual register that near-black atmospheres reach for — depth without coldness.' },
-  { id:'archive-density',       kind:'quote',    text:'Every Inch Earned', tags:['dense','archive','print','structure'],
-    title:'Archive Density', note:'Reference books and broadsheets pack the page because there’s genuinely a lot worth finding. Density reads as seriousness when the grid still holds.' },
-  { id:'gallery-hang',          kind:'image',    src:IMG.darkSpheres,     tags:['gallery','art','photography','image-first'],
-    title:'The Gallery Hang', note:'Sequence is an editorial opinion. Which image goes first, and why, says as much about the work as any of the pieces themselves.' },
-  { id:'systems-thinking',      kind:'type',     glyph:'01',              tags:['systems','grid','tech','rhythm'],
-    title:'Systems Thinking', note:'A number, set plainly, on a grid. Systems aesthetics find beauty in constraint — the rule you set once so you stop deciding on every element.' },
-  { id:'object-first',          kind:'image',    src:IMG.cucTee,          tags:['product','object','packaging','minimal'],
-    title:'Object, First', note:'The product fills the frame; nothing else competes. This is the visual grammar of a page built to answer one question: do I want this?' },
-  { id:'made-by-hand',          kind:'image',    src:IMG.dinoTee,         tags:['craft','ceramic','warm','material'],
-    title:'Made By Hand', note:'Imperfection reads as care. Objects photographed to show their making — not just their finish — build a different kind of trust with a buyer.' },
-  { id:'structural-honesty',    kind:'image',    src:IMG.featureStudio,   tags:['architecture','structure','grid','systems'],
-    title:'Structural Honesty', note:'When the system is visible, there’s no pretense of artlessness. The grid is the content, and that is its own kind of elegance.' },
-  { id:'nearly-empty-shelf',    kind:'image',    src:IMG.featureVase,     tags:['luxury','object','quiet','material'],
-    title:'The Nearly Empty Shelf', note:'One object, generously spaced, sells itself as precious. Luxury retail figured this out long before digital design caught up.' },
-  { id:'texture-of-materials',  kind:'image',    src:IMG.featureMaterials,tags:['material','texture','craft','nature'],
-    title:'The Texture of Materials', note:'Close, tactile, unstyled. This is photography that trusts the material to be interesting without a filter doing the work.' },
-  { id:'interior-light',        kind:'image',    src:IMG.featureInterior, tags:['architecture','quiet','warm','minimal'],
-    title:'Interior Light', note:'Natural light and empty rooms read as calm confidence. The absence of clutter is doing more work here than any single object could.' },
-  { id:'field-notes',           kind:'quote',    text:'Precision Is a Feeling', tags:['tech','systems','blue','product'],
-    title:'Field Notes', note:'Well-designed tools feel precise before a user reads a single label. Color and spacing communicate capability before content does.' },
-  { id:'monochrome-editorial',  kind:'image',    src:IMG.cap,             tags:['fashion','editorial','texture','print'],
-    title:'Monochrome Editorial', note:'Stripped of color, composition and type have to carry everything. This is the discipline fashion editorial built its authority on.' },
-  { id:'the-quiet-cover',       kind:'wordmark', text:'ISSUE 04',         tags:['print','books','editorial','quote'],
-    title:'The Quiet Cover', note:'A cover that under-promises typographically often over-delivers on trust. Restraint on the cover is a signal about what’s inside.' },
-];
+/* Which folder(s) each atmosphere draws from. Dark atmospheres share the
+   cars/gadgets pool; forest, signal and clay get a dedicated theme; museum
+   and electric mix across everything for variety. */
+const SCENE_INSPIRATION = {
+  museum:   ['designPrint', 'objectsArt', 'woodworking', 'cars', 'gadgets'],
+  graphite: ['cars', 'gadgets'],
+  signal:   ['designPrint'],
+  forest:   ['objectsArt'],
+  electric: ['gadgets', 'designPrint'],
+  midnight: ['gadgets', 'cars'],
+  clay:     ['woodworking'],
+};
+
+function hashStr(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+/* Randomized once per page load so repeat visits don't always land on the
+   same handful of photos (e.g. always cars/1.jpg). Scenes that share a
+   folder (graphite + midnight both pull cars/gadgets) get their own offset
+   via the colorStory hash, so the two don't show identical picks either. */
+const INSPIRATION_SESSION_SEED = Math.floor(Math.random() * 9973);
 
 function pickInspiration(design, limit) {
   limit = limit || 6;
-  const activeTags = new Set();
-  ['typography', 'colorStory', 'layout', 'spacing', 'contentFocus'].forEach(cat => {
-    const meta = OPTION_META[`${cat}:${design[cat]}`];
-    if (meta) meta.tags.forEach(t => activeTags.add(t));
-  });
+  const folderKeys = SCENE_INSPIRATION[design.colorStory] || Object.keys(THEME_FOLDERS);
+  const pools = folderKeys.map(key => THEME_FOLDERS[key]);
+  const sceneSalt = hashStr(design.colorStory || '');
 
-  return INSPIRATION_POOL
-    .map((item, idx) => ({ item, idx, score: item.tags.filter(t => activeTags.has(t)).length }))
-    .sort((a, b) => b.score - a.score || a.idx - b.idx)
-    .slice(0, limit)
-    .map(x => x.item);
+  // Round-robin across the scene's folders so the grid mixes themes instead
+  // of running through one folder before touching the next. Each pool starts
+  // at a different, session-randomized offset so the full folder cycles into
+  // view over time instead of only ever showing its first few images.
+  const items = [];
+  for (let round = 0; items.length < limit; round++) {
+    let addedThisRound = false;
+    pools.forEach((pool, poolIdx) => {
+      if (items.length >= limit) return;
+      if (round < pool.length) {
+        const offset = INSPIRATION_SESSION_SEED + sceneSalt + poolIdx * 13;
+        const idx = (round + offset) % pool.length;
+        items.push({ kind: 'image', src: pool[idx] });
+        addedThisRound = true;
+      }
+    });
+    if (!addedThisRound) break;
+  }
+  return items;
 }

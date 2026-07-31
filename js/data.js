@@ -44,6 +44,24 @@ const IMG = {
   introDeeper:      'assets/img/intro/step-deeper.png',
 };
 
+/* Themed photo folders — each one is its own photographic mood, used to
+   pull varied, on-theme imagery for both the Inspiration panel
+   (guide-data.js) and the canvas preview's feature photos
+   (collection-data.js). Drop a new photo into a folder and it's in
+   rotation everywhere that draws from it, no other code to touch. */
+const THEME_FOLDERS = {
+  cars:        ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','7.jpg']
+                 .map(f => `assets/img/cars/${f}`),
+  gadgets:     ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','facfde6f4afd4299a7e22adae5022990.jpg']
+                 .map(f => `assets/img/gadgets/${f}`),
+  designPrint: ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','7.jpg','8.jpg']
+                 .map(f => `assets/img/design print/${f}`),
+  objectsArt:  ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg','7.jpg','8.jpg','9.jpg','10.jpg','space.jpg']
+                 .map(f => `assets/img/objects art/${f}`),
+  woodworking: ['1.jpg','2.jpg','3.jpg','5.jpg','6.jpg','7.jpg','8.jpg','9.jpg','10.jpg']
+                 .map(f => `assets/img/woodworking craft/${f}`),
+};
+
 /* ── Colors (Atmosphere) ─────────────────────────────────────────────────── */
 
 const COLORS = {
@@ -260,21 +278,13 @@ const CONTENT = {
 
 const COLLECTION_STAT_LABEL = { editorial:'Stories', portfolio:'Works', brand:'Projects', product:'Pieces' };
 
-const CARD_PHOTOS = {
-  editorial: [IMG.journalSpread,  IMG.bookDutch,        IMG.darkSpheres],
-  portfolio: [IMG.golf,           IMG.darkSpheres,      IMG.car        ],
-  brand:     [IMG.studioMonitor,  IMG.architectureBook, IMG.quadroDesignBook],
-  product:   [IMG.storage,        IMG.shelf,            IMG.cap        ],
-};
-const HERO_PHOTOS = {
-  editorial: IMG.wideArchitecture,
-  portfolio: IMG.wideLounge,
-  brand:     IMG.wideBar,
-  product:   IMG.wideLiving,
-};
-const FEATURE_HEROES = {
-  editorial: IMG.featureInterior,
-  portfolio: IMG.featureVase,
-  brand:     IMG.featureStudio,
-  product:   IMG.featureMaterials,
+/* Which THEME_FOLDERS (above) each content focus draws its canvas photos
+   from — hero, feature-hero, and the three card thumbnails. Picked and
+   shuffled by pickFeaturePhotos() in collection-data.js so the canvas
+   preview doesn't lock onto the same handful of images forever. */
+const FEATURE_PHOTO_FOLDERS = {
+  editorial: ['designPrint', 'objectsArt'],
+  portfolio: ['objectsArt', 'cars'],
+  brand:     ['designPrint', 'gadgets'],
+  product:   ['woodworking', 'gadgets'],
 };

@@ -35,14 +35,15 @@ function buildCtx(design) {
   const typo    = TYPO[design.typography];
   const space   = SPACE[design.spacing];
   const content = CONTENT[design.contentFocus];
+  const photos  = pickFeaturePhotos(design.contentFocus);
   return {
     colors, typo, space, content,
     layout: design.layout,
     contentFocus: design.contentFocus,
     colorStory: design.colorStory,
-    cardPhotos: CARD_PHOTOS[design.contentFocus],
-    heroPhoto: HERO_PHOTOS[design.contentFocus],
-    featureHero: FEATURE_HEROES[design.contentFocus],
+    cardPhotos: photos.cardPhotos,
+    heroPhoto: photos.heroPhoto,
+    featureHero: photos.featureHero,
   };
 }
 
@@ -643,16 +644,15 @@ function goDeeperHtml(design) {
   </div>`;
 }
 
-function inspirationTileHtml(item) {
-  if (item.kind === 'image') return `<button class="insp-tile" data-insp="${item.id}"><img src="${item.src}" alt=""/></button>`;
-  if (item.kind === 'type') return `<button class="insp-tile type-tile" data-insp="${item.id}"><span>${esc(item.glyph)}</span></button>`;
-  if (item.kind === 'quote') return `<button class="insp-tile quote-tile" data-insp="${item.id}"><span>${esc(item.text)}</span></button>`;
-  if (item.kind === 'wordmark') return `<button class="insp-tile wordmark-tile" data-insp="${item.id}"><span>${esc(item.text)}</span></button>`;
-  return '';
+let inspirationItems = [];
+
+function inspirationTileHtml(item, idx) {
+  return `<button class="insp-tile" data-insp-idx="${idx}"><img src="${item.src}" alt="" loading="lazy"/></button>`;
 }
 
 function inspirationHtml(design) {
   const items = pickInspiration(design);
+  inspirationItems = items;
   return `<div id="inspiration-section">
     <div class="mix-label">Inspiration</div>
     <div class="insp-grid">${items.map(inspirationTileHtml).join('')}</div>
@@ -766,30 +766,37 @@ function scrollToSection(key) {
   setTimeout(() => el.classList.remove('lattice-pulse'), 900);
 }
 
-function openInspirationModal(id) {
-  const item = INSPIRATION_POOL.find(i => i.id === id);
-  if (!item) return;
+function openInspirationModal(startIdx) {
+  const count = inspirationItems.length;
+  if (!count) return;
+  let current = ((startIdx % count) + count) % count;
+
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `<div class="modal-card">
+    <img class="modal-image" src="${esc(inspirationItems[current].src)}" alt=""/>
     <button class="modal-close" id="modal-close">&times;</button>
-    <div class="modal-visual">
-      ${item.kind === 'image' ? `<img src="${item.src}" alt=""/>` :
-        item.kind === 'type' ? `<span style="font-size:64px;">${esc(item.glyph)}</span>` :
-        item.kind === 'quote' ? `<span style="font-size:22px;text-align:center;padding:0 30px;">${esc(item.text)}</span>` :
-        `<span style="font-size:26px;letter-spacing:.2em;text-transform:uppercase;">${esc(item.text)}</span>`}
-    </div>
-    <div class="modal-body">
-      <div class="kicker">Inspiration Note</div>
-      <h3>${esc(item.title)}</h3>
-      <p>${esc(item.note)}</p>
-    </div>
-  </div>`;
+  </div>
+  <button class="modal-nav modal-prev" id="modal-prev" aria-label="Previous image">&#8249;</button>
+  <button class="modal-nav modal-next" id="modal-next" aria-label="Next image">&#8250;</button>`;
   document.body.appendChild(overlay);
-  const close = () => overlay.remove();
+
+  const img = overlay.querySelector('.modal-image');
+  const showCurrent = () => { img.src = inspirationItems[current].src; };
+  const goPrev = () => { current = (current - 1 + count) % count; showCurrent(); };
+  const goNext = () => { current = (current + 1) % count; showCurrent(); };
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKeydown); };
+  function onKeydown(e) {
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') goPrev();
+    else if (e.key === 'ArrowRight') goNext();
+  }
+
   overlay.querySelector('#modal-close').addEventListener('click', close);
+  overlay.querySelector('#modal-prev').addEventListener('click', goPrev);
+  overlay.querySelector('#modal-next').addEventListener('click', goNext);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-  document.addEventListener('keydown', function esc1(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc1); } });
+  document.addEventListener('keydown', onKeydown);
 }
 
 const SECTION_HTML_BY_KEY = {
@@ -829,8 +836,8 @@ function attachJumpHandlers(container) {
 }
 
 function attachInspirationHandlers(container) {
-  container.querySelectorAll('[data-insp]').forEach(btn => {
-    btn.addEventListener('click', () => openInspirationModal(btn.getAttribute('data-insp')));
+  container.querySelectorAll('[data-insp-idx]').forEach(btn => {
+    btn.addEventListener('click', () => openInspirationModal(parseInt(btn.getAttribute('data-insp-idx'), 10)));
   });
 }
 

@@ -36,6 +36,27 @@ function seededShuffle(arr, seed) {
   return out;
 }
 
+/* ── Canvas feature photos — themed pools, reshuffled per page load ──────
+   The canvas preview's hero / feature-hero / card thumbnails used to be
+   hand-pinned to one fixed image per content focus, so the same painting
+   or the same product shot showed up every single time. Instead, each
+   content focus draws from its FEATURE_PHOTO_FOLDERS (data.js) and gets a
+   freshly shuffled slice — a different hero and card set on every reload,
+   with editorial/portfolio/brand/product each pulling from their own
+   folder pair so they stay visually distinct from one another.           */
+const FEATURE_PHOTO_SEED = Math.floor(Math.random() * 99991);
+
+function pickFeaturePhotos(contentFocus) {
+  const folderKeys = FEATURE_PHOTO_FOLDERS[contentFocus] || Object.keys(THEME_FOLDERS);
+  const pool = [].concat(...folderKeys.map(key => THEME_FOLDERS[key]));
+  const shuffled = seededShuffle(pool, `${contentFocus}-feature-${FEATURE_PHOTO_SEED}`);
+  return {
+    heroPhoto: shuffled[0],
+    featureHero: shuffled[1],
+    cardPhotos: [shuffled[2], shuffled[3], shuffled[4]],
+  };
+}
+
 /* ── Collection asset manifest ───────────────────────────────────────────
    aspect is hand-set (landscape / portrait / square) rather than measured
    at runtime — the honest buildless substitute for reading image
